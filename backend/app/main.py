@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from app.db.qdrant_db import init_qdrant
+from app.routes import pdf_ingest
+
 
 app = FastAPI()
 
@@ -15,6 +17,8 @@ from app.routes import ingest, query
 # Include routes
 app.include_router(ingest.router, prefix="/ingest")
 app.include_router(query.router, prefix="/brain")
+app.include_router(pdf_ingest.router, prefix="/ingest")
+
 
 @app.get("/")
 def home():
