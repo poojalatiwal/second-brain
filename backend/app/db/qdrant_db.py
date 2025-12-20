@@ -1,7 +1,7 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance
 from app.config import settings
-from qdrant_client.models import Query, NamedVector
+from datetime import datetime   # ✅ missing import
 
 # Create Qdrant client (REST mode)
 qdrant = QdrantClient(
@@ -28,6 +28,8 @@ def insert_vector(id, embedding, payload):
     """
     Inserts a vector + metadata into Qdrant.
     """
+    payload["timestamp"] = datetime.utcnow().isoformat()   # ✅ add timestamp
+
     try:
         qdrant.upsert(
             collection_name="memory",
@@ -37,7 +39,7 @@ def insert_vector(id, embedding, payload):
                 "payload": payload
             }]
         )
-        print("✅ Inserted")
+        print("✅ Inserted:", id)
     except Exception as e:
         print("❌ ERROR INSERTING INTO QDRANT:", e)
         raise e
@@ -47,16 +49,13 @@ def search_vectors(vector, top_k=5):
     try:
         result = qdrant.query_points(
             collection_name="memory",
-            prefetch=[],
-            query=vector,          # ✅ THIS is the key
+            query_vector=vector,     # ✅ correct param
             limit=top_k,
             with_payload=True
         )
 
-        print("RAW RESULTS:", result.points)
         return result.points
 
     except Exception as e:
         print("❌ ERROR SEARCHING QDRANT:", e)
         return []
-
