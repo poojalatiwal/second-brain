@@ -1,15 +1,42 @@
 fastapi
 uvicorn
-qdrant-client
-psycopg2-binary
+
+# Database
 sqlalchemy
+psycopg2-binary
+
+# Vector DB
+qdrant-client
+
+# Embeddings / NLP
 sentence-transformers
-python-multipart
-beautifulsoup4
-requests
-whisper-openai
-pydantic
+numpy
+scipy
+
+# PDF ingestion
+PyMuPDF
+
+# Environment variables
 python-dotenv
+
+# File uploads
+python-multipart
+
+# HTTP requests
+requests
+beautifulsoup4
+
+# Chat models + Whisper
 openai
 groq
-PyMuPDF
+
+# Image processing helpers
+pillow
+
+# Security + JWT auth
+PyJWT
+cryptography
+passlib[bcrypt]
+
+# Optional: DeepInfra (if you use their vision APIs)
+httpx

@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Query
 import requests
 from bs4 import BeautifulSoup
 import uuid
@@ -8,40 +8,40 @@ from app.db.qdrant_db import insert_vector
 
 router = APIRouter()
 
-@router.post("/url")
-async def ingest_url(url: str):
+@router.api_route("/url", methods=["GET", "POST"])
+async def ingest_url(request: Request, url: str = Query(None)):
+    # POST body support
+    if request.method == "POST" and url is None:
+        body = await request.json()
+        url = body.get("url")
+
+    if not url:
+        return {"error": "URL is required"}
+
+    # Fetch page
     try:
-        html = requests.get(url, timeout=10).text
-    except:
-        return {"error": "Failed to fetch URL"}
+        html = requests.get(
+            url,
+            timeout=10,
+            headers={"User-Agent": "Mozilla/5.0"}
+        ).text
+    except Exception as e:
+        return {"error": f"Failed to fetch URL: {str(e)}"}
 
     soup = BeautifulSoup(html, "html.parser")
-
-    # Extract visible text
-    text = "\n".join([t.get_text(strip=True) for t in soup.find_all(["p", "h1", "h2", "h3", "li"])])
+    text = "\n".join(
+        t.get_text(strip=True)
+        for t in soup.find_all(["p", "h1", "h2", "h3", "li"])
+    )
 
     chunks = chunk_text(text)
-
-    stored_ids = []
+    ids = []
 
     for chunk in chunks:
         emb = get_embedding(chunk)
         uid = str(uuid.uuid4())
+        insert_vector(id=uid, embedding=emb, payload={"text": chunk, "source": url})
+        ids.append(uid)
 
-        insert_vector(
-            id=uid,
-            embedding=emb,
-            payload={
-                "text": chunk,
-                "modality": "url",
-                "source_url": url
-            }
-        )
+    return {"url": url, "chunks_stored": len(ids), "ids": ids}
 
-        stored_ids.append(uid)
-
-    return {
-        "url": url,
-        "chunks_stored": len(stored_ids),
-        "ids": stored_ids
-    }

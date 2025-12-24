@@ -1,10 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File, Depends   # <-- FIXED
 from pydantic import BaseModel
 from app.db.qdrant_db import insert_vector, search_vectors, qdrant
 from sentence_transformers import SentenceTransformer
+from app.auth.utils import get_current_user   # <-- FIXED
 from groq import Groq
 from app.config import settings
 import uuid
+import fitz
+import tempfile
+import base64
+
 
 router = APIRouter()
 
@@ -23,27 +28,33 @@ class AddMemory(BaseModel):
     text: str
 
 @router.post("/add")
-async def add_memory(data: AddMemory):
+async def add_memory(data: AddMemory, user_id: int = Depends(get_current_user)):
     embedding = get_embedding(data.text)
     memory_id = str(uuid.uuid4())
 
     insert_vector(
         id=memory_id,
         embedding=embedding,
-        payload={"text": data.text}
+        payload={
+            "text": data.text,
+            "user_id": user_id
+        }
     )
 
-    return {"id": memory_id, "stored_text": data.text}
-
+    return {"id": memory_id, "text": data.text}
 
 # ============================================================
 # 2) SEARCH MEMORY
 # ============================================================
 @router.get("/search")
-async def search_memory(query: str):
-    embedding = get_embedding(query)
-    results = search_vectors(embedding)
+async def search_memory(query: str, user_id: int = Depends(get_current_user)):
+    emb = get_embedding(query)
 
+    results = search_vectors(
+        vector=emb,
+        top_k=5,
+        user_id=user_id
+    )
     formatted = [
         {
             "id": p.id,

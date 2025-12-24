@@ -11,17 +11,22 @@ qdrant = QdrantClient(
 
 def init_qdrant():
     """
-    Creates (or recreates) the memory collection.
-    Must match the embedding dim: 384 for MiniLM-L6-v2.
+    Creates collection ONLY if not exist.
     """
-    qdrant.recreate_collection(
-        collection_name="memory",
-        vectors_config=VectorParams(
-            size=384,
-            distance=Distance.COSINE
+    collections = [c.name for c in qdrant.get_collections().collections]
+
+    if "memory" not in collections:
+        qdrant.create_collection(
+            collection_name="memory",
+            vectors_config=VectorParams(
+                size=384,
+                distance=Distance.COSINE
+            )
         )
-    )
-    print("✅ Qdrant collection created: memory")
+        print("✅ Created new Qdrant collection")
+    else:
+        print("📌 Qdrant collection already exists — not recreating")
+
 
 
 def insert_vector(id, embedding, payload):
@@ -45,17 +50,16 @@ def insert_vector(id, embedding, payload):
         raise e
 
 
-def search_vectors(vector, top_k=5):
-    try:
-        result = qdrant.query_points(
-            collection_name="memory",
-            query_vector=vector,     # ✅ correct param
-            limit=top_k,
-            with_payload=True
-        )
-
-        return result.points
-
-    except Exception as e:
-        print("❌ ERROR SEARCHING QDRANT:", e)
-        return []
+def search_vectors(vector, user_id, top_k=5):
+    result = qdrant.query_points(
+        collection_name="memory",
+        query=vector,
+        limit=top_k,
+        with_payload=True,
+        filter={
+            "must": [
+                {"key": "user_id", "match": {"value": user_id}}
+            ]
+        }
+    )
+    return result.points
