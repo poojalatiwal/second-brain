@@ -28,6 +28,9 @@ from app.routes.audio_chat import router as audio_chat_router
 # Memory
 from app.routes.memory import router as memory_router
 
+# Admin 
+from app.routes.admin import router as admin_router
+
 
 # ========= INIT FASTAPI =========
 
@@ -71,6 +74,9 @@ app.include_router(audio_chat_router, prefix="/brain", tags=["Brain"])
 
 # Memory CRUD
 app.include_router(memory_router, prefix="/memory", tags=["Memory"])
+
+# Admin
+app.include_router(admin_router)
 
 
 # ========= HOME =========

@@ -1,59 +1,76 @@
-# app/routes/audio_chat.py
-
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from groq import Groq
+
 from app.config import settings
 from app.services.embedder import get_embedding
 from app.db.qdrant_db import search_vectors
+from app.auth.utils import get_current_user
+from app.auth.models import User
 
 router = APIRouter()
 
 # Initialize Groq Client
 client = Groq(api_key=settings.GROQ_API_KEY)
 
+
 @router.post("/audio")
-async def chat_with_audio(file: UploadFile = File(...)):
+async def chat_with_audio(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)   # ✅ AUTH
+):
     """
     Conversational audio → text → memory-aware response
     """
 
-    # Step 1: Read uploaded audio bytes
+    if not file.filename:
+        raise HTTPException(400, "No audio file provided")
+
+    # 1️⃣ Read uploaded audio bytes
     audio_bytes = await file.read()
 
-    # Step 2: Groq Whisper transcription
+    # 2️⃣ Groq Whisper transcription
     transcript = client.audio.transcriptions.create(
         model="whisper-large-v3-turbo",
-        file=(file.filename, audio_bytes),   # <- automatically handles format
+        file=(file.filename, audio_bytes),
     )
+
     user_text = transcript.text.strip()
+    if not user_text:
+        raise HTTPException(400, "Could not transcribe audio")
 
-    # Step 3: Search Memory
+    # 3️⃣ Embed + search ONLY THIS USER'S MEMORY
     emb = get_embedding(user_text)
-    results = search_vectors(emb, top_k=5)
 
-    # Extract memory context
-    context = "\n".join([
+    results = search_vectors(
+        vector=emb,
+        user_id=current_user.id,     # ✅ CRITICAL FIX
+        top_k=5
+    )
+
+    # 4️⃣ Extract memory context
+    context_list = [
         point.payload.get("text", "")
         for point in results
         if point.payload is not None
-    ])
+    ]
 
-    # Step 4: Build final LLM prompt
+    context = "\n".join(context_list) if context_list else ""
+
+    # 5️⃣ Build final LLM prompt
     prompt = f"""
 You are the user's AI assistant.
 
-Use the following stored memory ONLY if relevant:
+Use the following memory ONLY if relevant.
 
 Memory:
-{context}
+{context if context else "No memory available."}
 
 User (from audio): {user_text}
 
-Respond naturally. 
-If memory has no answer, reply normally as a general AI assistant.
+Respond naturally.
 """
 
-    # Step 5: Ask Groq LLM
+    # 6️⃣ Ask Groq LLM
     reply = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}]
@@ -61,9 +78,10 @@ If memory has no answer, reply normally as a general AI assistant.
 
     answer = reply.choices[0].message.content
 
-    # Step 6: Return combined details
     return {
+        "user_id": current_user.id,
         "user_said": user_text,
         "assistant_reply": answer,
-        "memory_used": context if context else "No relevant memory found"
+        "memory_used": context if context else "No relevant memory found",
+        "matches_found": len(context_list)
     }

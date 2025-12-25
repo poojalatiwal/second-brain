@@ -1,0 +1,90 @@
+/* LIGHT MODE VARIABLES */
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text: #222;
+  --border: #d0d0d0;
+  --primary: #4a6cf7;
+  --chat-user: #e8efff;
+  --chat-bot: #fff0d7;
+}
+
+/* DARK MODE VARIABLES */
+.dark {
+  --bg: #0d1117;
+  --card: #161b22;
+  --text: #e6edf3;
+  --border: #30363d;
+  --primary: #4a6cf7;
+  --chat-user: #1f6feb;
+  --chat-bot: #f4a261;
+}
+
+/* GLOBAL RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+}
+
+/* Utility Layout */
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+}
+
+/* Inputs */
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
+
+button {
+  padding: 12px;
+  background: var(--primary);
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Chat bubbles */
+.chat-user {
+  background: var(--chat-user);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  text-align: right;
+}
+
+.chat-bot {
+  background: var(--chat-bot);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  text-align: left;
+}
