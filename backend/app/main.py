@@ -1,78 +1,72 @@
-# app/main.py
-
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.db.postgree import Base, engine
 from app.db.qdrant_db import init_qdrant
 
-# ========= IMPORT ROUTES =========
-
-# Auth
+# ========= ROUTERS =========
 from app.auth.routes import router as auth_router
-
-# Ingestion
 from app.routes.ingest import router as ingest_router
 from app.routes.pdf_ingest import router as pdf_ingest_router
 from app.routes.audio_ingest import router as audio_ingest_router
 from app.routes.url_ingest import router as url_ingest_router
 from app.routes.image_ingest import router as image_ingest_router
-
-# RAG / Search
 from app.routes.query import router as query_router
 from app.routes.hybrid_search import router as hybrid_router
 from app.routes.stream_chat import router as stream_router
-
-# AI Chat
 from app.routes.chat import router as chat_router
 from app.routes.audio_chat import router as audio_chat_router
-
-# Memory
 from app.routes.memory import router as memory_router
-
-# Admin 
 from app.routes.admin import router as admin_router
 
 
-# ========= INIT FASTAPI =========
-
+# ========= INIT APP =========
 app = FastAPI(title="Second Brain Backend")
 
 
-# ========= INIT DATABASE =========
+# ========= CORS (REQUIRED FOR REACT) =========
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-print("📌 Creating database tables (if not exist)...")
+
+# ========= DATABASE =========
 Base.metadata.create_all(bind=engine)
 
 
-# ========= STARTUP EVENT =========
-
+# ========= STARTUP =========
 @app.on_event("startup")
 def startup_event():
-    print("🚀 Startup: Initializing Qdrant...")
-    init_qdrant()  # Uses your qdrant_db.py code
+    init_qdrant()
 
 
-# ========= REGISTER ROUTES =========
+# ========= ROUTES =========
 
-# Auth
-app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+# Auth (⚠️ NO prefix here)
+app.include_router(auth_router)
 
-# Ingestion Routes
-app.include_router(ingest_router,       prefix="/ingest", tags=["Ingest"])
-app.include_router(pdf_ingest_router,   prefix="/ingest", tags=["Ingest"])
+# Ingest
+app.include_router(ingest_router, prefix="/ingest", tags=["Ingest"])
+app.include_router(pdf_ingest_router, prefix="/ingest", tags=["Ingest"])
 app.include_router(audio_ingest_router, prefix="/ingest", tags=["Ingest"])
-app.include_router(url_ingest_router,   prefix="/ingest", tags=["Ingest"])
+app.include_router(url_ingest_router, prefix="/ingest", tags=["Ingest"])
 app.include_router(image_ingest_router, prefix="/ingest", tags=["Ingest"])
 
-# RAG / Search
+# Brain / Search / Chat
 app.include_router(query_router, prefix="/brain", tags=["Brain"])
 app.include_router(hybrid_router, prefix="/search", tags=["Search"])
 app.include_router(stream_router, prefix="/stream", tags=["Chat"])
-
-# Chat
 app.include_router(chat_router, prefix="/chat", tags=["Chat"])
 app.include_router(audio_chat_router, prefix="/brain", tags=["Brain"])
 
-# Memory CRUD
+# Memory
 app.include_router(memory_router, prefix="/memory", tags=["Memory"])
 
 # Admin
@@ -80,7 +74,6 @@ app.include_router(admin_router)
 
 
 # ========= HOME =========
-
 @app.get("/")
 def home():
     return {"message": "Second Brain Backend Running 🚀"}

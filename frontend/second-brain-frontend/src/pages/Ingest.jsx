@@ -1,22 +1,14 @@
+import { ingestText } from "../api/ingest";
 import { useState } from "react";
-import client from "../api/axiosClient";
 
 export default function Ingest() {
-  const [url, setUrl] = useState("");
-
-  const send = async () => {
-    await client.get("/ingest/url", { params: { url }});
-    alert("Ingested!");
-  };
+  const [text, setText] = useState("");
 
   return (
-    <div className="container">
-      <div className="card">
-        <h2>URL Ingest</h2>
-
-        <input placeholder="Enter website URL" onChange={(e)=>setUrl(e.target.value)} />
-        <button onClick={send}>Ingest</button>
-      </div>
-    </div>
+    <>
+      <h2>Ingest</h2>
+      <textarea onChange={e=>setText(e.target.value)} />
+      <button onClick={()=>ingestText(text)}>Ingest Text</button>
+    </>
   );
 }
