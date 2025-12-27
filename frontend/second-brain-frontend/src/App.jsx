@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
+import Signup from "./pages/Signup"; // ✅ FIXED
 import Home from "./pages/Home";
 import FreeChat from "./pages/FreeChat";
 import MemoryHome from "./pages/MemoryHome";
@@ -11,13 +12,17 @@ import MemoryImage from "./pages/MemoryImage";
 import MemoryUrl from "./pages/MemoryUrl";
 import MemoryAudio from "./pages/MemoryAudio";
 
+import OAuthSuccess from "./pages/OAuthSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 
 export default function App() {
   return (
     <Routes>
       {/* PUBLIC */}
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+  <Route path="/oauth-success" element={<OAuthSuccess />} />
 
       {/* HOME */}
       <Route

@@ -1,8 +1,14 @@
+from dotenv import load_dotenv
+load_dotenv()
+import os
+from starlette.middleware.sessions import SessionMiddleware
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.postgree import Base, engine
 from app.db.qdrant_db import init_qdrant
+from app.auth.google import router as google_router
 
 # ========= ROUTERS =========
 from app.auth.routes import router as auth_router
@@ -23,7 +29,11 @@ from app.routes.admin import router as admin_router
 # ========= INIT APP =========
 app = FastAPI(title="Second Brain Backend")
 
-
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SESSION_SECRET", "dev-secret-key"),
+    same_site="lax",
+)
 # ========= CORS (REQUIRED FOR REACT) =========
 app.add_middleware(
     CORSMiddleware,
@@ -71,6 +81,8 @@ app.include_router(memory_router, prefix="/memory", tags=["Memory"])
 
 # Admin
 app.include_router(admin_router)
+
+app.include_router(google_router)
 
 
 # ========= HOME =========

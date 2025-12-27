@@ -25,6 +25,11 @@ export default function Login() {
 
   const navigate = useNavigate();
 
+  // ✅ MOVE THIS HERE
+  const googleLogin = () => {
+    window.location.href = "http://localhost:8000/auth/google";
+  };
+
   const submit = async () => {
     if (!email || !password) return alert("Email and password required");
 
@@ -68,16 +73,15 @@ export default function Login() {
           Login
         </button>
 
-        {/* Divider */}
         <div className="auth-divider">Or continue with</div>
 
         {/* Google */}
-        <button className="social-btn">
+        <button className="social-btn" onClick={googleLogin}>
           <img src="/google.svg" alt="Google" />
           Continue with Google
         </button>
 
-        {/* GitHub */}
+        {/* GitHub (next step) */}
         <button className="social-btn">
           <img src="/github.svg" alt="GitHub" />
           Continue with GitHub
