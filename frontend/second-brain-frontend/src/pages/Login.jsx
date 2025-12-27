@@ -25,10 +25,15 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  // ✅ MOVE THIS HERE
+  // ✅ Google Login
   const googleLogin = () => {
     window.location.href = "http://localhost:8000/auth/google";
   };
+  // Github login
+  const githubLogin = () => {
+  window.location.href = "http://localhost:8000/auth/github";
+};
+
 
   const submit = async () => {
     if (!email || !password) return alert("Email and password required");
@@ -82,10 +87,11 @@ export default function Login() {
         </button>
 
         {/* GitHub (next step) */}
-        <button className="social-btn">
-          <img src="/github.svg" alt="GitHub" />
-          Continue with GitHub
-        </button>
+        <button className="social-btn" onClick={githubLogin}>
+    <img src="/github.svg" alt="GitHub" />
+    Continue with GitHub
+  </button>
+
 
         <div className="auth-footer">
           No account?

@@ -5,6 +5,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.auth.github import router as github_router
 
 from app.db.postgree import Base, engine
 from app.db.qdrant_db import init_qdrant
@@ -82,7 +83,9 @@ app.include_router(memory_router, prefix="/memory", tags=["Memory"])
 # Admin
 app.include_router(admin_router)
 
+# Google and github
 app.include_router(google_router)
+app.include_router(github_router)
 
 
 # ========= HOME =========

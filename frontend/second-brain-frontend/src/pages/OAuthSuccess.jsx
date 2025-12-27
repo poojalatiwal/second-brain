@@ -10,11 +10,19 @@ export default function OAuthSuccess() {
 
     if (token) {
       localStorage.setItem("token", token);
-      navigate("/");
+
+      // 🔥 IMPORTANT: delay helps React routing
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 100);
     } else {
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   }, [navigate]);
 
-  return <p style={{ textAlign: "center" }}>Logging you in...</p>;
+  return (
+    <div style={{ color: "white", textAlign: "center", marginTop: "40px" }}>
+      Logging you in with Google...
+    </div>
+  );
 }
