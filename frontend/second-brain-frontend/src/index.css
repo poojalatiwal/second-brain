@@ -134,12 +134,27 @@ body {
   opacity: 0.95;
 }
 
-/* Divider */
 .auth-divider {
-  margin: 28px 0;
-  height: 1px;
-  background: linear-gradient(to right, transparent, #334155, transparent);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 26px 0 18px;
+  color: #94a3b8;
+  font-size: 0.9rem;
 }
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #334155;
+}
+
+.auth-divider span {
+  white-space: nowrap;
+}
+
 
 /* Footer */
 .auth-footer {
@@ -431,4 +446,38 @@ textarea {
   color: #64748b;
   font-size: 0.9rem;
 }
+/* ===== Social Login Buttons ===== */
+.social-btn {
+  width: 100%;
+  height: 52px;
+  margin-top: 14px;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid #334155;
+  border-radius: 14px;
+
+  color: #e5e7eb;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.social-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #3b82f6;
+}
+
+/* ICON FIX (MOST IMPORTANT PART) */
+.social-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+}

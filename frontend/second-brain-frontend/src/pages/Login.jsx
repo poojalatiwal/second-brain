@@ -34,16 +34,19 @@ export default function Login() {
       navigate("/");
     } catch (err) {
       alert("Invalid credentials");
-      console.error(err);
     }
   };
 
   return (
     <div className="auth-page">
       <div className="auth">
-        <h2>LogIn</h2>
+        <h2>Login</h2>
 
-        <input placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input
+          placeholder="Email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
         <div className="password-wrapper">
           <input
@@ -52,14 +55,33 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button type="button" className="eye-btn" onClick={() => setShowPassword(!showPassword)}>
+          <button
+            type="button"
+            className="eye-btn"
+            onClick={() => setShowPassword(!showPassword)}
+          >
             <EyeIcon open={showPassword} />
           </button>
         </div>
 
-        <button className="primary" onClick={submit}>Login</button>
+        <button className="primary" onClick={submit}>
+          Login
+        </button>
 
-        <div className="auth-divider" />
+        {/* Divider */}
+        <div className="auth-divider">Or continue with</div>
+
+        {/* Google */}
+        <button className="social-btn">
+          <img src="/google.svg" alt="Google" />
+          Continue with Google
+        </button>
+
+        {/* GitHub */}
+        <button className="social-btn">
+          <img src="/github.svg" alt="GitHub" />
+          Continue with GitHub
+        </button>
 
         <div className="auth-footer">
           No account?

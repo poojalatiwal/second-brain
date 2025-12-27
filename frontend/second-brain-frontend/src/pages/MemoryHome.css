@@ -1,0 +1,63 @@
+.memory-layout {
+  display: flex;
+  height: calc(100vh - 64px);
+}
+
+.memory-sidebar {
+  width: 260px;
+  padding: 20px;
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.memory-main {
+  flex: 1;
+  padding: 30px;
+}
+
+.section-title {
+  margin: 30px 0 16px;
+}
+
+.memory-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.memory-card {
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.memory-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255,255,255,0.1);
+}
+
+.file-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+}
+
+.file-input::file-selector-button {
+  margin-right: 12px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #1f2937;
+  color: #fff;
+  cursor: pointer;
+}
+
+.file-input::file-selector-button:hover {
+  background: #374151;
+}

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -9,11 +9,14 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="nav">
+    <nav className="navbar">
       <h2>🧠 SecondBrain AI</h2>
-      <div>
-        <Link to="/">Home</Link>
-        <button onClick={logout}>Logout</button>
+
+      <div className="nav-actions">
+        <button onClick={() => navigate("/")}>Home</button>
+        <button className="logout" onClick={logout}>
+          Logout
+        </button>
       </div>
     </nav>
   );

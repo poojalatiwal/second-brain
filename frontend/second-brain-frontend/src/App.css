@@ -1,24 +1,3 @@
-.navbar {
-  width: 100%;
-  background: white;
-  padding: 15px 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.navbar a {
-  text-decoration: none;
-  color: #333;
-  margin-right: 15px;
-  font-weight: 500;
-}
-
-.navbar a:hover {
-  color: #4a6cf7;
-}
-
 /* ===== GLOBAL BASE ===== */
 * {
   box-sizing: border-box;
@@ -33,4 +12,74 @@ body,
   padding: 0;
   background: linear-gradient(135deg, #020617, #0f172a);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Prevent content hiding behind navbar */
+body {
+  padding-top: 64px;
+}
+/* ===== NAVBAR ===== */
+.navbar {
+  position: fixed;          /* 🔥 always stays visible */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+
+  background: rgba(2, 6, 23, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  z-index: 9999;
+}
+
+/* BRAND */
+.navbar h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* RIGHT SIDE ACTIONS */
+.nav-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* BUTTONS */
+.nav-actions button {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 600;
+
+  transition: background 0.2s ease;
+}
+
+.nav-actions button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* LOGOUT BUTTON */
+.nav-actions .logout {
+  background: rgba(239, 68, 68, 0.25);
+  color: #fee2e2;
+}
+
+.nav-actions .logout:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+.memory-layout,
+.home-container {
+  min-height: calc(100vh - 64px);
 }

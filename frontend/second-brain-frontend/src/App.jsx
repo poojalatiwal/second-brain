@@ -1,9 +1,16 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import FreeChat from "./pages/FreeChat";
 import MemoryHome from "./pages/MemoryHome";
+
+import MemoryText from "./pages/MemoryText";
+import MemoryPdf from "./pages/MemoryPdf";
+import MemoryImage from "./pages/MemoryImage";
+import MemoryUrl from "./pages/MemoryUrl";
+import MemoryAudio from "./pages/MemoryAudio";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -32,7 +39,7 @@ export default function App() {
         }
       />
 
-      {/* MEMORY BASED */}
+      {/* MEMORY (LAYOUT + NESTED PAGES) */}
       <Route
         path="/memory"
         element={
@@ -40,7 +47,16 @@ export default function App() {
             <MemoryHome />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route path="text" element={<MemoryText />} />
+        <Route path="pdf" element={<MemoryPdf />} />
+        <Route path="image" element={<MemoryImage />} />
+        <Route path="url" element={<MemoryUrl />} />
+        <Route path="audio" element={<MemoryAudio />} />
+      </Route>
+
+      {/* SAFETY REDIRECT (old URLs) */}
+      <Route path="/memory-home" element={<Navigate to="/memory" replace />} />
     </Routes>
   );
 }
