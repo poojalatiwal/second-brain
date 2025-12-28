@@ -1,0 +1,93 @@
+/* ================= NAVBAR ================= */
+
+.navbar {
+  height: 72px;
+  padding: 0 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  /* ✅ softer blend with page */
+  background: linear-gradient(
+    180deg,
+    rgba(8, 12, 24, 0.95),
+    rgba(10, 15, 30, 0.85)
+  );
+
+  /* ❌ remove hard border */
+  border-bottom: none;
+
+  /* ✅ soft ambient depth instead of harsh shadow */
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+
+/* ================= BRAND ================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 22px;        /* 🔥 bigger */
+  font-weight: 800;      /* 🔥 bolder */
+  color: #f1f5f9;
+  cursor: pointer;
+}
+
+.brand span {
+  letter-spacing: 0.4px;
+}
+
+/* ================= ACTION BUTTONS ================= */
+
+.top-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* EXACT style you asked for */
+.top-actions button {
+  margin-left: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+
+  border: 1.5px solid #334155; /* 🔥 slightly bolder boundary */
+  background: transparent;
+  color: #e5e7eb;
+
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+
+  transition: all 0.2s ease;
+}
+
+.top-actions button:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+  transform: translateY(-1px);
+}
+
+/* ================= LOGOUT ================= */
+
+.logout-btn {
+  border-color: #ef4444;
+  color: #fecaca;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+/* ================= THEME BUTTON ================= */

@@ -16,7 +16,7 @@ body {
     #020617 60%
   );
   color: #e5e7eb;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* ===== Auth Page (CENTERED LAYOUT) ===== */
@@ -480,4 +480,30 @@ textarea {
   height: 20px;
   object-fit: contain;
   display: block;
+}
+/* ================= THEME VARIABLES ================= */
+
+:root {
+  --page-bg: linear-gradient(180deg, #0a0f1e, #020617);
+  --nav-bg: linear-gradient(180deg, #080c18, #0a0f1e);
+
+  --text-main: #f1f5f9;
+  --border-ui: #334155;
+
+  --shadow-nav:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* LIGHT MODE */
+[data-theme="light"] {
+  --page-bg: linear-gradient(180deg, #f8fafc, #e5e7eb);
+  --nav-bg: linear-gradient(180deg, #ffffff, #f1f5f9);
+
+  --text-main: #020617;
+  --border-ui: #cbd5e1;
+
+  --shadow-nav:
+    0 6px 18px rgba(0, 0, 0, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04);
 }

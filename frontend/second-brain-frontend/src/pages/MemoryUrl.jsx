@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { ingestUrl } from "../api/ingest";
+import "./MemoryHome.css";
 
 export default function MemoryUrl() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const addUrl = async () => {
-    if (!url.trim()) return alert("Enter a valid URL");
+  const uploadUrl = async () => {
+    if (!url.trim()) {
+      alert("Enter a valid URL");
+      return;
+    }
+
     try {
       setLoading(true);
       await ingestUrl(url);
@@ -23,13 +28,21 @@ export default function MemoryUrl() {
     <div className="panel">
       <h2>🌐 Add Website to Memory</h2>
 
+      {/* URL input styled like file-input */}
       <input
+        type="url"
         placeholder="https://example.com"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
+        className="file-input"
       />
 
-      <button onClick={addUrl} disabled={loading}>
+      {/* Upload button */}
+      <button
+        className="upload-btn"
+        onClick={uploadUrl}
+        disabled={loading}
+      >
         {loading ? "Adding..." : "Add Website"}
       </button>
     </div>

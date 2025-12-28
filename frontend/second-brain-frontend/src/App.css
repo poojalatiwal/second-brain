@@ -83,3 +83,28 @@ body {
 .home-container {
   min-height: calc(100vh - 64px);
 }
+/* ================= DEFAULT (DARK) ================= */
+:root {
+  --bg-main: radial-gradient(circle at top, #0f172a, #020617);
+  --bg-navbar: linear-gradient(180deg, #020617, #020617);
+  --bg-panel: rgba(255, 255, 255, 0.04);
+
+  --text-primary: #e5e7eb;
+  --text-secondary: #94a3b8;
+
+  --border-color: #334155;
+  --accent: #3b82f6;
+}
+
+/* ================= LIGHT THEME ================= */
+[data-theme="light"] {
+  --bg-main: linear-gradient(180deg, #f8fafc, #e5e7eb);
+  --bg-navbar: linear-gradient(180deg, #ffffff, #f1f5f9);
+  --bg-panel: #ffffff;
+
+  --text-primary: #020617;
+  --text-secondary: #475569;
+
+  --border-color: #cbd5f5;
+  --accent: #2563eb;
+}

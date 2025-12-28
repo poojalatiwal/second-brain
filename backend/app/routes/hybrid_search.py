@@ -7,16 +7,17 @@ from qdrant_client.models import Filter, FieldCondition, MatchValue
 
 router = APIRouter()
 
+
 @router.get("/")
 async def hybrid_search(
     query: str,
-    current_user: User = Depends(get_current_user)   # ✅ AUTH
+    current_user: User = Depends(get_current_user)
 ):
     if not query.strip():
         raise HTTPException(400, "Query cannot be empty")
 
     # --------------------------------------------------
-    # USER FILTER (CRITICAL)
+    # USER FILTER
     # --------------------------------------------------
     user_filter = Filter(
         must=[
@@ -28,22 +29,30 @@ async def hybrid_search(
     )
 
     # --------------------------------------------------
-    # 1️⃣ SEMANTIC SEARCH
+    # 1️⃣ SEMANTIC SEARCH (VECTOR)
     # --------------------------------------------------
-    sem_vec = get_embedding(query)
+    embedding = get_embedding(query)
 
-    sem_results = qdrant.query_points(
+    semantic_result = qdrant.query_points(
         collection_name="memory",
-        query=sem_vec,
+        query=embedding,
+        query_filter=user_filter,
         limit=5,
-        with_payload=True,
-        filter=user_filter        # ✅ USER-SCOPED
+        with_payload=True
     )
 
+    semantic_hits = [
+        {
+            "text": p.payload.get("text", ""),
+            "score": p.score
+        }
+        for p in semantic_result.points
+    ]
+
     # --------------------------------------------------
-    # 2️⃣ KEYWORD SEARCH
+    # 2️⃣ KEYWORD SEARCH (TEXT MATCH)
     # --------------------------------------------------
-    kw_results, _ = qdrant.scroll(
+    keyword_result, _ = qdrant.scroll(
         collection_name="memory",
         scroll_filter=Filter(
             must=[
@@ -60,20 +69,16 @@ async def hybrid_search(
         limit=20
     )
 
+    keyword_hits = [
+        p.payload.get("text", "")
+        for p in keyword_result
+    ]
+
     # --------------------------------------------------
     # RESPONSE
     # --------------------------------------------------
     return {
         "user_id": current_user.id,
-        "semantic": [
-            {
-                "text": p.payload.get("text", ""),
-                "score": p.score
-            }
-            for p in sem_results.points
-        ],
-        "keyword": [
-            p.payload.get("text", "")
-            for p in kw_results
-        ]
+        "semantic": semantic_hits,
+        "keyword": keyword_hits
     }

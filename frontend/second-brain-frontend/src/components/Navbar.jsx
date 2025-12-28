@@ -1,7 +1,14 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import "./Navbar.css";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const [theme, setTheme] = useState("dark");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   const logout = () => {
     localStorage.clear();
@@ -10,11 +17,15 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-      <h2>🧠 SecondBrain AI</h2>
+      <div className="brand" onClick={() => navigate("/")}>
+        🧠 <span>SecondBrain AI</span>
+      </div>
 
-      <div className="nav-actions">
+      <div className="top-actions">
         <button onClick={() => navigate("/")}>Home</button>
-        <button className="logout" onClick={logout}>
+
+
+        <button className="logout-btn" onClick={logout}>
           Logout
         </button>
       </div>

@@ -1,13 +1,21 @@
 import axiosClient from "./axiosClient";
 
 /* ================= MEMORY CHAT ================= */
-
-// Ask from memory
 export const memoryChat = (question) =>
-  axiosClient.post("/memory/search", {
-    query: question,
+  axiosClient.post("/brain/", null, {
+    params: { question },
   });
 
-// ✅ ADD THIS FUNCTION
+/* ================= HISTORY ================= */
 export const getMemoryHistory = () =>
   axiosClient.get("/memory/history");
+
+/* ================= DELETE MEMORY ================= */
+export const deleteMemory = (id) =>
+  axiosClient.delete(`/memory/delete/${id}`);
+
+/* ================= UPDATE MEMORY ✅ REQUIRED ================= */
+export const updateMemory = (id, newText) =>
+  axiosClient.put(`/memory/update/${id}`, {
+    new_text: newText,
+  });

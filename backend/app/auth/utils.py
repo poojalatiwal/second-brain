@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
-from fastapi import HTTPException, Depends
-from fastapi.security import HTTPBearer
+from fastapi import HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from argon2 import PasswordHasher
 from sqlalchemy.orm import Session
 
@@ -10,9 +10,9 @@ from app.db.postgree import get_db
 from .models import User
 
 
-# -------------------------------------
-# PASSWORD HASHING (Argon2)
-# -------------------------------------
+# =====================================
+# PASSWORD HASHING (ARGON2)
+# =====================================
 pwd_hasher = PasswordHasher()
 
 def hash_password(password: str) -> str:
@@ -25,57 +25,88 @@ def verify_password(password: str, hashed: str) -> bool:
         return False
 
 
-# -------------------------------------
-# JWT SECURITY  (REPLACED OAuth2 → HTTPBearer)
-# -------------------------------------
-auth_scheme = HTTPBearer()  # ⭐ FIXED
+# =====================================
+# JWT CONFIG
+# =====================================
+security = HTTPBearer(auto_error=False)  # ✅ IMPORTANT
 
 
-def create_access_token(user_id: int):
+def create_access_token(user_id: int) -> str:
     payload = {
         "sub": str(user_id),
-        "exp": datetime.utcnow() + timedelta(minutes=settings.JWT_ACCESS_EXPIRE_MINUTES)
+        "exp": datetime.utcnow()
+        + timedelta(minutes=settings.JWT_ACCESS_EXPIRE_MINUTES),
+        "type": "access",
     }
     return jwt.encode(payload, settings.JWT_SECRET, settings.JWT_ALGORITHM)
 
 
-def create_refresh_token(user_id: int):
+def create_refresh_token(user_id: int) -> str:
     payload = {
         "sub": str(user_id),
-        "exp": datetime.utcnow() + timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS)
+        "exp": datetime.utcnow()
+        + timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS),
+        "type": "refresh",
     }
     return jwt.encode(payload, settings.JWT_SECRET, settings.JWT_ALGORITHM)
 
 
-def decode_token(token: str):
+def decode_token(token: str) -> dict:
     try:
-        return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+        return jwt.decode(
+            token,
+            settings.JWT_SECRET,
+            algorithms=[settings.JWT_ALGORITHM],
+        )
     except JWTError:
-        raise HTTPException(401, "Invalid or expired token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session expired. Please login again.",
+        )
 
 
-# -------------------------------------
-# GET CURRENT USER (TOKEN REQUIRED)
-# -------------------------------------
+# =====================================
+# GET CURRENT USER (GLOBAL AUTH GUARD)
+# =====================================
 def get_current_user(
-    token = Depends(auth_scheme),
-    db: Session = Depends(get_db)
-):
-    token = token.credentials  # ⭐ IMPORTANT FIX
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db),
+) -> User:
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated. Please login.",
+        )
 
-    data = decode_token(token)
-    user_id = data.get("sub")
+    token = credentials.credentials
 
-    user = db.query(User).filter(User.id == user_id).first()
+    payload = decode_token(token)
+    user_id = payload.get("sub")
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session expired. Please login again.",
+        )
+
+    user = db.query(User).filter(User.id == int(user_id)).first()
+
     if not user:
-        raise HTTPException(401, "User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session expired. Please login again.",
+        )
 
     return user
 
 
-# -------------------------------------
-# ADMIN CHECK
-# -------------------------------------
-def require_admin(user: User):
-    if not user.is_admin:
-        raise HTTPException(403, "Admin access required")
+# =====================================
+# ADMIN DEPENDENCY
+# =====================================
+def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
+        )
+    return current_user

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ingestText } from "../api/ingest";
+import "./MemoryHome.css";
 
 export default function MemoryText() {
   const [text, setText] = useState("");
@@ -29,7 +30,7 @@ export default function MemoryText() {
         onChange={(e) => setText(e.target.value)}
       />
 
-      <button onClick={addText} disabled={loading}>
+      <button className="upload-btn" onClick={addText} disabled={loading}>
         {loading ? "Adding..." : "Add Text"}
       </button>
     </div>

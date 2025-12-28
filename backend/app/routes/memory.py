@@ -8,7 +8,7 @@ from app.auth.models import User
 from app.services.embedder import get_embedding
 from groq import Groq
 from app.config import settings
-from qdrant_client.models import Filter, FieldCondition, MatchValue
+from qdrant_client.models import Filter, FieldCondition, MatchValue, PointIdsList
 
 router = APIRouter()
 groq_client = Groq(api_key=settings.GROQ_API_KEY)
@@ -81,7 +81,7 @@ async def delete_memory(
     memory_id: str,
     current_user: User = Depends(get_current_user)
 ):
-    # Ensure memory belongs to user
+    # 1️⃣ Verify ownership
     points, _ = qdrant.scroll(
         collection_name="memory",
         scroll_filter=Filter(
@@ -96,11 +96,12 @@ async def delete_memory(
     )
 
     if memory_id not in [str(p.id) for p in points]:
-        raise HTTPException(403, "Not authorized to delete this memory")
+        raise HTTPException(status_code=403, detail="Not authorized")
 
+    # 2️⃣ ✅ CORRECT DELETE
     qdrant.delete(
         collection_name="memory",
-        points_selector={"points": [memory_id]}
+        points_selector=PointIdsList(points=[memory_id])
     )
 
     return {
@@ -109,35 +110,51 @@ async def delete_memory(
     }
 
 
+
 # ============================================================
 # 4) UPDATE MEMORY (USER-SAFE)
 # ============================================================
 class UpdateMemory(BaseModel):
     new_text: str
-
 @router.put("/update/{memory_id}")
 async def update_memory(
     memory_id: str,
     data: UpdateMemory,
     current_user: User = Depends(get_current_user)
 ):
-    new_embedding = get_embedding(data.new_text)
+    # 1️⃣ Verify ownership
+    points, _ = qdrant.scroll(
+        collection_name="memory",
+        scroll_filter=Filter(
+            must=[
+                FieldCondition(
+                    key="user_id",
+                    match=MatchValue(value=current_user.id)
+                )
+            ]
+        ),
+        limit=1000
+    )
+
+    if memory_id not in [str(p.id) for p in points]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    # 2️⃣ UPSERT = UPDATE
+    embedding = get_embedding(data.new_text)
 
     insert_vector(
-        id=memory_id,
-        embedding=new_embedding,
+        id=memory_id,          # SAME ID → overwrite
+        embedding=embedding,
         payload={
             "text": data.new_text,
-            "user_id": current_user.id   # 🔒 DO NOT REMOVE
+            "user_id": current_user.id
         }
     )
 
     return {
         "updated": memory_id,
-        "user_id": current_user.id,
         "new_text": data.new_text
     }
-
 
 # ============================================================
 # 5) SUMMARIZE MEMORY (USER-ONLY)
@@ -184,4 +201,37 @@ async def summarize_memory(
     return {
         "user_id": current_user.id,
         "summary": response.choices[0].message.content
+    }
+
+@router.get("/history")
+async def memory_history(
+    limit: int = 50,
+    current_user: User = Depends(get_current_user)
+):
+    points, _ = qdrant.scroll(
+        collection_name="memory",
+        scroll_filter=Filter(
+            must=[
+                FieldCondition(
+                    key="user_id",
+                    match=MatchValue(value=current_user.id)
+                )
+            ]
+        ),
+        limit=limit,
+        with_payload=True
+    )
+
+    return {
+        "items": [
+            {
+                "id": str(p.id),
+                "text": p.payload.get("text", ""),
+                "preview": p.payload.get("text", "")[:120],
+                "modality": p.payload.get("modality", "text"),
+                "source": p.payload.get("source_url"),
+                "created_at": p.payload.get("timestamp"),
+            }
+            for p in points
+        ]
     }

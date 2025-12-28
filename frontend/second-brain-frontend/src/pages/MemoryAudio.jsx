@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ingestAudio } from "../api/ingest";
+import "./MemoryHome.css";
 
 export default function MemoryAudio() {
   const [file, setFile] = useState(null);
@@ -16,8 +17,7 @@ export default function MemoryAudio() {
       await ingestAudio(file);
       alert("Audio added to memory");
       setFile(null);
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert("Failed to upload audio");
     } finally {
       setLoading(false);
@@ -28,19 +28,33 @@ export default function MemoryAudio() {
     <div className="panel">
       <h2>🎧 Add Audio to Memory</h2>
 
+      {/* Styled file input (same as PDF & Image) */}
       <input
         type="file"
         accept="audio/*"
+        className="file-input"
         onChange={(e) => setFile(e.target.files[0])}
       />
 
+      {/* Subtle filename preview */}
       {file && (
-        <p style={{ marginTop: "8px", color: "#94a3b8" }}>
+        <p
+          style={{
+            marginTop: "8px",
+            fontSize: "13px",
+            color: "#94a3b8",
+          }}
+        >
           Selected: {file.name}
         </p>
       )}
 
-      <button onClick={uploadAudio} disabled={loading}>
+      {/* Styled upload button */}
+      <button
+        className="upload-btn"
+        onClick={uploadAudio}
+        disabled={loading}
+      >
         {loading ? "Uploading..." : "Upload Audio"}
       </button>
     </div>
