@@ -42,7 +42,9 @@ export default function ChatInput({ onSend, disabled = false }) {
       )}
 
       <div className="chat-input-bar">
-        <button className="icon-btn" onClick={openFilePicker}>➕</button>
+       <button className="icon-btn" onClick={openFilePicker}>
+  +
+</button>
 
         <input
           ref={fileRef}

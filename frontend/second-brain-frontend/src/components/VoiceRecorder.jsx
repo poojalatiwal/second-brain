@@ -1,38 +1,60 @@
-import { useState, useRef } from "react";
-import { voiceChat } from "../api/chat";
+import { useEffect, useRef, useState } from "react";
 
 export default function VoiceRecorder({ onResult }) {
-  const [recording, setRecording] = useState(false);
-  const mediaRecorder = useRef(null);
-  const chunks = useRef([]);
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef(null);
 
-  const start = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder.current = new MediaRecorder(stream);
-    chunks.current = [];
+  useEffect(() => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    mediaRecorder.current.ondataavailable = (e) => {
-      chunks.current.push(e.data);
+    if (!SpeechRecognition) {
+      console.warn("Speech Recognition not supported");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      onResult(transcript);
+      setListening(false);
     };
 
-    mediaRecorder.current.onstop = async () => {
-      const blob = new Blob(chunks.current, { type: "audio/webm" });
-      const res = await voiceChat(blob);
-      onResult(res.data.answer);
+    recognition.onerror = () => {
+      setListening(false);
     };
 
-    mediaRecorder.current.start();
-    setRecording(true);
-  };
+    recognition.onend = () => {
+      setListening(false);
+    };
 
-  const stop = () => {
-    mediaRecorder.current.stop();
-    setRecording(false);
+    recognitionRef.current = recognition;
+  }, [onResult]);
+
+  const toggleMic = () => {
+    if (!recognitionRef.current) return;
+
+    if (listening) {
+      recognitionRef.current.stop();
+      setListening(false);
+    } else {
+      recognitionRef.current.start();
+      setListening(true);
+    }
   };
 
   return (
-    <button onClick={recording ? stop : start}>
-      {recording ? "⏹ Stop" : "🎤"}
+    <button
+      className={`mic-btn ${listening ? "active" : ""}`}
+      onClick={toggleMic}
+      title="Speak"
+      type="button"
+    >
+      🎤
     </button>
   );
 }
