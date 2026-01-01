@@ -3,26 +3,23 @@ import Navbar from "../components/Navbar";
 import ChatSidebar from "../components/ChatSidebar";
 import ChatInput from "../components/ChatInput";
 import ChatBubble from "../components/ChatBubble";
-import { streamChat, getChatHistory } from "../api/chat";
+import { streamChat, getChatHistory, pdfChat, imageChat } from "../api/chat";
 import "./FreeChat.css";
 
 export default function FreeChat() {
   const [messages, setMessages] = useState([]);
   const [sessionId, setSessionId] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [isStreaming, setIsStreaming] = useState(false);
-
   const chatBoxRef = useRef(null);
 
-  /* ===== AUTO SCROLL ===== */
+  /* ================= AUTO SCROLL ================= */
   useEffect(() => {
     if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop =
-        chatBoxRef.current.scrollHeight;
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, [messages]);
 
-  /* ===== LOAD CHAT HISTORY ===== */
+  /* ================= LOAD HISTORY ================= */
   useEffect(() => {
     if (!sessionId) return;
 
@@ -38,50 +35,67 @@ export default function FreeChat() {
       .catch(console.error);
   }, [sessionId]);
 
-  /* ===== SEND MESSAGE ===== */
-  const sendMessage = async (text) => {
-    if (!text.trim() || isStreaming) return;
-
+  /* ================= SEND MESSAGE ================= */
+  const sendMessage = async ({ text, file }) => {
+    if (isStreaming) return;
     setIsStreaming(true);
 
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", text },
-      { role: "ai", text: "" },
-    ]);
+    // show user message (only if text exists)
+    if (text?.trim()) {
+      setMessages((prev) => [...prev, { role: "user", text }]);
+    }
 
     try {
+      /* ========== FILE MODE ========== */
+      if (file instanceof File) {
+        let res;
+
+        if (file.type === "application/pdf") {
+          res = await pdfChat(file, text, sessionId);
+        } else if (file.type.startsWith("image/")) {
+          res = await imageChat(file, text, sessionId);
+        } else {
+          throw new Error("Unsupported file");
+        }
+
+        // AI response
+        setMessages((prev) => [
+          ...prev,
+          { role: "ai", text: res.data.answer },
+        ]);
+
+        // 🔒 create session ONCE
+        if (!sessionId && res.data.session_id) {
+          setSessionId(res.data.session_id);
+        }
+
+        return;
+      }
+
+      /* ========== TEXT CHAT (NORMAL) ========== */
+      setMessages((prev) => [...prev, { role: "ai", text: "" }]);
+
       await streamChat({
         prompt: text,
-        session_id: sessionId,
-
+        session_id: sessionId, // ✅ ALWAYS reuse session
         onSession: (id) => {
-          if (!sessionId) {
-            setSessionId(id);
-            setRefreshKey((k) => k + 1);
-          }
+          if (!sessionId) setSessionId(id);
         },
-
         onToken: ({ full }) => {
           setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = {
-              role: "ai",
-              text: full,
-            };
-            return updated;
+            const copy = [...prev];
+            copy[copy.length - 1] = { role: "ai", text: full };
+            return copy;
           });
         },
       });
+
     } catch (err) {
-      setMessages((prev) => {
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          role: "ai",
-          text: "❌ Something went wrong. Please try again.",
-        };
-        return updated;
-      });
+      console.error(err);
+      setMessages((prev) => [
+        ...prev,
+        { role: "ai", text: "❌ Error processing request" },
+      ]);
     } finally {
       setIsStreaming(false);
     }
@@ -94,7 +108,6 @@ export default function FreeChat() {
       <div className="chat-layout">
         <ChatSidebar
           sessionId={sessionId}
-          refreshKey={refreshKey}
           onSelectSession={setSessionId}
           onNewChat={() => {
             setSessionId(null);
@@ -103,31 +116,13 @@ export default function FreeChat() {
         />
 
         <div className="chat-main">
-          {/* ===== CHAT AREA ===== */}
           <div className="chat-box" ref={chatBoxRef}>
-            {messages.length === 0 && (
-              <div className="empty-chat">
-                <h2>Start a new conversation</h2>
-                <p>Ask anything to begin 🚀</p>
-              </div>
-            )}
-
             {messages.map((m, i) => (
-              <ChatBubble
-                key={i}
-                role={m.role}
-                text={m.text}
-              />
+              <ChatBubble key={i} role={m.role} text={m.text} />
             ))}
           </div>
 
-              {/* ===== INPUT (ALWAYS VISIBLE) ===== */}
-            <ChatInput
-      onSend={sendMessage}
-      disabled={isStreaming}
-      sessionId={sessionId}
-    />
-
+          <ChatInput onSend={sendMessage} disabled={isStreaming} />
         </div>
       </div>
     </>

@@ -1,8 +1,7 @@
 import { useState, useRef } from "react";
 import VoiceRecorder from "./VoiceRecorder";
-import { pdfChat, imageChat } from "../api/chat";
 
-export default function ChatInput({ onSend, disabled = false, sessionId }) {
+export default function ChatInput({ onSend, disabled = false }) {
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
   const fileRef = useRef(null);
@@ -12,93 +11,61 @@ export default function ChatInput({ onSend, disabled = false, sessionId }) {
   };
 
   const handleFile = (e) => {
-  const f = e.target.files[0];
-  if (!f) return;
+    const f = e.target.files[0];
+    if (!f) return;
+    setFile(f);
+    e.target.value = "";
+  };
 
-  setFile(f);
+  const removeFile = () => setFile(null);
 
-  // 👇 SHOW CONFIRMATION IN CHAT
-  onSend(`📎 File attached: ${f.name}`);
-
-  e.target.value = "";
-};
-  const submit = async () => {
+  const submit = () => {
     if (disabled) return;
 
-    try {
-      /* ===== FILE MODE ===== */
-      if (file) {
-        if (!text.trim()) {
-          onSend("❗ Please ask a question about the file");
-          return;
-        }
+    // ✅ allow file-only OR text-only OR both
+    if (!text.trim() && !file) return;
 
-        // show user messages
-        onSend(`📎 ${file.name}`);
-        onSend(text);
+    onSend({ text, file });
 
-        let res;
-        if (file.type.startsWith("image/")) {
-          res = await imageChat(file, text, sessionId);
-        } else if (file.type === "application/pdf") {
-          res = await pdfChat(file, text, sessionId);
-        } else {
-          onSend("❌ Unsupported file type");
-          return;
-        }
-
-        // AI answer
-        onSend(res.data.answer);
-
-        setFile(null);
-        setText("");
-        return;
-      }
-
-      /* ===== NORMAL CHAT ===== */
-      if (text.trim()) {
-        onSend(text);
-        setText("");
-      }
-    } catch (err) {
-      console.error(err);
-      onSend("❌ Failed to process file");
-    }
+    setText("");
+    setFile(null);
   };
 
   return (
-    <div className="chat-input-bar">
-      <button
-        className="icon-btn"
-        onClick={openFilePicker}
-        title="Upload PDF or Image"
-      >
-        ➕
-      </button>
+    <div className="chat-input-wrapper">
+      {/* FILE PREVIEW */}
+      {file && (
+        <div className="file-preview">
+          <span>📄 {file.name}</span>
+          <button onClick={removeFile}>✕</button>
+        </div>
+      )}
+
+      <div className="chat-input-bar">
+        <button className="icon-btn" onClick={openFilePicker}>➕</button>
 
         <input
-    ref={fileRef}
-    type="file"
-    accept="application/pdf,image/*"
-    style={{ display: "none" }}   // ✅ IMPORTANT
-    onChange={handleFile}
-  />
+          ref={fileRef}
+          type="file"
+          accept="application/pdf,image/*"
+          hidden
+          onChange={handleFile}
+        />
 
-      <VoiceRecorder onResult={onSend} />
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={
+            file ? `Ask something about ${file.name}...` : "Ask anything..."
+          }
+          disabled={disabled}
+          onKeyDown={(e) => e.key === "Enter" && submit()}
+        />
 
-      <input
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder={
-          file ? "Ask something about the file..." : "Ask anything..."
-        }
-        disabled={disabled}
-        onKeyDown={(e) => e.key === "Enter" && submit()}
-      />
+        <VoiceRecorder onResult={(t) => setText(t)} />
 
-      <button onClick={submit} disabled={disabled}>
-        Send
-      </button>
+        <button onClick={submit} disabled={disabled}>Send</button>
+      </div>
     </div>
   );
 }

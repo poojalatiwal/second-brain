@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -36,8 +36,7 @@ class ChatSessionOut(BaseModel):
 # ======================= HELPERS =======================
 
 def make_title(text: str) -> str:
-    text = text.strip()
-    return text[:60] if len(text) > 5 else "Conversation"
+    return text.strip()[:60] if text and len(text.strip()) > 5 else "Conversation"
 
 
 # ======================= STREAMING =======================
@@ -93,15 +92,18 @@ def chat_stream(
         db.commit()
         db.refresh(session)
 
-    # 🔥 AUTO CONTEXT INJECTION (KEY PART)
+    # 🔥 SMART CONTEXT INJECTION (NOT STRICT)
     prompt = data.prompt
+
     if session.active_context:
         prompt = f"""
-You have access to the following context ({session.context_type}):
+You may use the following context if it is relevant.
+If the question is unrelated, answer normally using your general knowledge.
 
+Context ({session.context_type}):
 {session.active_context}
 
-User question:
+User Question:
 {data.prompt}
 """
 
@@ -133,7 +135,7 @@ async def chat_image(
     image_bytes = await file.read()
     image_base64 = base64.b64encode(image_bytes).decode()
 
-    prompt = question or "Explain this image"
+    user_question = question or "Describe this image"
 
     session = None
     if session_id:
@@ -143,7 +145,7 @@ async def chat_image(
         ).first()
 
     if not session:
-        session = ChatSession(user_id=user.id, title=make_title(prompt))
+        session = ChatSession(user_id=user.id, title=make_title(user_question))
         db.add(session)
         db.commit()
         db.refresh(session)
@@ -153,26 +155,27 @@ async def chat_image(
         messages=[{
             "role": "user",
             "content": [
-                {"type": "text", "text": prompt},
-                {"type": "image_url", "image_url": {
-                    "url": f"data:image/jpeg;base64,{image_base64}"
-                }}
+                {"type": "text", "text": user_question},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{image_base64}"
+                    }
+                }
             ]
         }]
     )
 
     answer = res.choices[0].message.content
 
-    # 🔥 STORE CONTEXT FOR FUTURE QUESTIONS
+    # ✅ STORE IMAGE CONTEXT
     session.active_context = answer
     session.context_type = "image"
     db.commit()
 
     db.add_all([
-        ChatMessage(session_id=session.id, role="user", modality="image",
-                    content=f"{prompt} ({file.filename})"),
-        ChatMessage(session_id=session.id, role="ai", modality="image",
-                    content=answer)
+        ChatMessage(session_id=session.id, role="user", modality="image", content=user_question),
+        ChatMessage(session_id=session.id, role="ai", modality="image", content=answer)
     ])
     db.commit()
 
@@ -190,11 +193,13 @@ async def chat_pdf(
     user: User = Depends(get_current_user),
 ):
     reader = PdfReader(BytesIO(await file.read()))
-    text = "\n".join(page.extract_text() or "" for page in reader.pages)
-    text = text[:12000]
+    full_text = "\n".join(page.extract_text() or "" for page in reader.pages)
 
-    if not text.strip():
-        return {"answer": "No readable text found in PDF"}
+    if not full_text.strip():
+        raise HTTPException(status_code=400, detail="No readable text in PDF")
+
+    full_text = full_text[:12000]
+    user_question = question or "Summarize the document"
 
     session = None
     if session_id:
@@ -210,11 +215,13 @@ async def chat_pdf(
         db.refresh(session)
 
     prompt = f"""
-Document content:
-{text}
+Use the document below as reference.
 
-User question:
-{question or "Summarize the document"}
+Document:
+{full_text}
+
+User Question:
+{user_question}
 """
 
     res = groq.chat.completions.create(
@@ -224,16 +231,14 @@ User question:
 
     answer = res.choices[0].message.content
 
-    # 🔥 STORE CONTEXT
-    session.active_context = text
+    # ✅ STORE DOCUMENT CONTEXT
+    session.active_context = full_text
     session.context_type = "pdf"
     db.commit()
 
     db.add_all([
-        ChatMessage(session_id=session.id, role="user", modality="pdf",
-                    content=question or f"Uploaded PDF: {file.filename}"),
-        ChatMessage(session_id=session.id, role="ai", modality="pdf",
-                    content=answer)
+        ChatMessage(session_id=session.id, role="user", modality="pdf", content=user_question),
+        ChatMessage(session_id=session.id, role="ai", modality="pdf", content=answer)
     ])
     db.commit()
 

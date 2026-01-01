@@ -2,26 +2,29 @@
 
 .chat-layout {
   display: flex;
-  height: calc(100vh - 60px);
-  background: radial-gradient(circle at top, #020617, #000);
-  color: white;
-  overflow: hidden;
+  height: calc(100vh - 60px); /* navbar height */
+  overflow: hidden; /* 🔥 IMPORTANT */
 }
 
 /* ================= SIDEBAR ================= */
 
+/* ===== SIDEBAR ===== */
 .chat-sidebar {
-  width: 276px;
-  background: linear-gradient(180deg, #050816, #020617);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-
+  width: 280px;
+  height: 100%;
+  overflow-y: auto; /* 🔥 FIX SCROLL */
   padding: 16px;
-  box-sizing: border-box;
+}
 
+/* ===== MAIN CHAT ===== */
+.chat-main {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  height: 100%;
+  overflow: hidden; /* 🔥 prevent page scroll */
 }
+
 
 
 /* New Chat Button */
@@ -115,18 +118,21 @@
 
 /* ================= MAIN CHAT ================= */
 
-.chat-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
 
 .chat-box {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* 🔥 ONLY THIS SCROLLS */
   padding: 24px;
-  scroll-behavior: smooth;
+}
+
+/* ===== INPUT AREA ===== */
+.chat-input-wrapper {
+  position: sticky;
+  bottom: 0;
+  background: #020617;
+  z-index: 10;
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Scrollbar */
@@ -298,4 +304,80 @@
 
 .chat-input-bar input::placeholder {
   color: #94a3b8;
+}
+
+/* File preview like ChatGPT */
+.file-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 12px 14px;
+  margin-bottom: 10px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.95),
+    rgba(15, 23, 42, 0.95)
+  );
+
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 14px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  font-size: 14px;
+  font-weight: 500;
+  color: #e5e7eb;
+
+  animation: slideUp 0.18s ease-out;
+}
+.file-preview span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-preview button {
+  background: transparent;
+  border: none;
+
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+
+  padding: 4px 6px;
+  border-radius: 8px;
+
+  transition: all 0.15s ease;
+}
+
+.file-preview button:hover {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.15);
+}
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Existing input bar stays same */
+.chat-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
 }
