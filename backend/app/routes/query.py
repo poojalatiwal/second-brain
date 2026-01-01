@@ -1,65 +1,80 @@
+import uuid
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from app.services.embedder import get_embedding
-from app.db.qdrant_db import search_vectors
+from app.db.qdrant_db import search_vectors, insert_vector
 from app.auth.utils import get_current_user
 from app.config import settings
 from groq import Groq
 
+router = APIRouter(prefix="/memory", tags=["Memory"])
 client = Groq(api_key=settings.GROQ_API_KEY)
 
-router = APIRouter()
+
+class MemoryQuestion(BaseModel):
+    question: str
 
 
 @router.post("/")
-async def ask_brain(
-    question: str,
-    current_user=Depends(get_current_user)   # ✅ require login
+async def ask_from_memory(
+    data: MemoryQuestion,
+    current_user=Depends(get_current_user)
 ):
-    if not question.strip():
-        raise HTTPException(400, "Question cannot be empty")
+    question = data.question.strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question cannot be empty")
 
-    # 1. Embed question
-    emb = get_embedding(question)
+    embedding = get_embedding(question)
 
-    # 2. Search only THIS USER’s memory
     results = search_vectors(
-        vector=emb,
-        user_id=current_user.id,      # ✅ critical fix
+        vector=embedding,
+        user_id=current_user.id,
         top_k=5
     )
 
-    # 3. Extract context
-    context_list = [
-        p.payload.get("text", "")
+    context_chunks = [
+        p.payload["text"]
         for p in results
-        if p.payload is not None
+        if p.payload and "text" in p.payload
     ]
 
-    context = "\n".join(context_list) if context_list else "No relevant memory found."
+    context = "\n\n".join(context_chunks) if context_chunks else "No relevant memory found."
 
-    # 4. Build prompt
     prompt = f"""
-You are a helpful assistant.
+You are a memory-based assistant.
 
-Context from user’s memory:
+Use ONLY the memory below to answer.
+
+Memory:
 {context}
 
-Question: {question}
+Question:
+{question}
 
-Answer based ONLY on the above context. 
-If the context does not contain the answer, say "I don't know."
+Rules:
+- Answer only from memory
+- If not found, say exactly: "I don't know."
 """
 
-    # 5. Call GROQ
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}]
     )
 
-    answer = response.choices[0].message.content
+    answer = response.choices[0].message.content.strip()
+
+    # ✅ SAVE CHAT TO MEMORY HISTORY
+    insert_vector(
+        id=str(uuid.uuid4()),
+        embedding=get_embedding(f"{question} {answer}"),
+        payload={
+            "text": f"Q: {question}\nA: {answer}",
+            "user_id": current_user.id,
+            "modality": "chat",
+        }
+    )
 
     return {
         "answer": answer,
-        "context_used": context,
-        "matches_found": len(context_list)
+        "matches_found": len(context_chunks),
     }

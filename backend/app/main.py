@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+
 from app.db.postgree import Base, engine
 from app.db.qdrant_db import init_qdrant
 
@@ -29,6 +30,7 @@ from app.routes.memory import router as memory_router
 from app.routes.admin import router as admin_router
 
 
+
 # ========= INIT APP =========
 app = FastAPI(title="Second Brain Backend")
 
@@ -49,6 +51,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Session-Id"],
 )
 
 # ========= DATABASE =========
@@ -81,7 +84,7 @@ app.include_router(audio_chat_router, prefix="/brain", tags=["Brain"])
 app.include_router(stream_router, prefix="/brain/stream", tags=["Brain"])
 
 # ---- Free Chat ----
-app.include_router(chat_router, prefix="/chat", tags=["Chat"])
+app.include_router(chat_router, tags=["Chat"])
 
 # ---- Search ----
 app.include_router(search_router, prefix="/search", tags=["Search"])

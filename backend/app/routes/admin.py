@@ -4,17 +4,14 @@ from sqlalchemy.orm import Session
 from app.db.postgree import get_db
 from app.auth.models import User
 from app.auth.utils import get_current_user, require_admin
-
-# ✅ IMPORTANT FIX:
-# We import "qdrant" but rename it locally as qdrant_client
 from app.db.qdrant_db import qdrant as qdrant_client
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
-# ---------------------------
-# 1) GET ALL USERS
-# ---------------------------
+# =========================
+# 1️⃣ GET ALL USERS
+# =========================
 @router.get("/users")
 def get_users(
     db: Session = Depends(get_db),
@@ -23,53 +20,58 @@ def get_users(
     require_admin(curr_user)
 
     users = db.query(User).all()
+
     return [
         {
             "id": u.id,
             "username": u.username,
             "email": u.email,
-            "is_admin": u.is_admin
+            "is_admin": u.is_admin,
         }
         for u in users
     ]
 
 
-# ---------------------------
-# 2) SYSTEM LOGS (Activity)
-# ---------------------------
+# =========================
+# 2️⃣ SYSTEM LOGS (TEMP)
+# =========================
 @router.get("/logs")
 def get_logs(curr_user: User = Depends(get_current_user)):
     require_admin(curr_user)
 
-    # Placeholder logs (replace with DB logs later)
+    # TODO: replace with DB-backed logs later
     return [
-        {"event": "User signup", "user": "test@example.com"},
-        {"event": "Knowledge ingested", "source": "PDF"},
-        {"event": "Chat request", "model": "GPT-4"},
+        {"event": "User signup", "detail": "test@example.com"},
+        {"event": "Memory ingested", "source": "PDF"},
+        {"event": "Chat request", "mode": "memory"},
     ]
 
 
-# ---------------------------
-# 3) SYSTEM STATISTICS
-# ---------------------------
+# =========================
+# 3️⃣ SYSTEM STATS
+# =========================
+
 @router.get("/stats")
-def get_system_stats(
+def get_admin_stats(
     db: Session = Depends(get_db),
-    curr_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
-    require_admin(curr_user)
+    # 🔐 Admin check
+    require_admin(current_user)
 
     total_users = db.query(User).count()
+    admin_users = db.query(User).filter(User.is_admin == True).count()
 
-    # Retrieve vector statistics from Qdrant
+    # Qdrant stats
     try:
-        stats = qdrant_client.get_collection("memory")
-        total_vectors = stats.points_count
+        collection = qdrant_client.get_collection("memory")
+        total_vectors = collection.points_count or 0
     except Exception:
         total_vectors = 0
 
     return {
         "total_users": total_users,
+        "admin_users": admin_users,
         "total_vectors": total_vectors,
-        "total_docs": total_vectors // 5  # adjust based on actual chunking strategy
+        "estimated_docs": total_vectors // 5  # adjust chunk size later
     }

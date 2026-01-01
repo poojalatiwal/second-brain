@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
-import Signup from "./pages/Signup"; // ✅ FIXED
+import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import FreeChat from "./pages/FreeChat";
 import MemoryHome from "./pages/MemoryHome";
@@ -15,16 +15,22 @@ import MemoryAudio from "./pages/MemoryAudio";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import AdminRoute from "./components/AdminRoute";
+import AdminLayout from "./pages/admin/AdminLayout"; // ✅ REQUIRED
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminLogs from "./pages/admin/AdminLogs";
+import AdminStats from "./pages/admin/AdminStats";
 
 export default function App() {
   return (
     <Routes>
-      {/* PUBLIC */}
+      {/* ================= PUBLIC ================= */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-  <Route path="/oauth-success" element={<OAuthSuccess />} />
+      <Route path="/oauth-success" element={<OAuthSuccess />} />
 
-      {/* HOME */}
+      {/* ================= USER AREA ================= */}
       <Route
         path="/"
         element={
@@ -34,7 +40,6 @@ export default function App() {
         }
       />
 
-      {/* FREE CHAT */}
       <Route
         path="/free-chat"
         element={
@@ -44,7 +49,7 @@ export default function App() {
         }
       />
 
-      {/* MEMORY (LAYOUT + NESTED PAGES) */}
+      {/* ================= MEMORY ================= */}
       <Route
         path="/memory"
         element={
@@ -53,6 +58,7 @@ export default function App() {
           </ProtectedRoute>
         }
       >
+        <Route index element={<Navigate to="text" replace />} />
         <Route path="text" element={<MemoryText />} />
         <Route path="pdf" element={<MemoryPdf />} />
         <Route path="image" element={<MemoryImage />} />
@@ -60,8 +66,19 @@ export default function App() {
         <Route path="audio" element={<MemoryAudio />} />
       </Route>
 
-      {/* SAFETY REDIRECT (old URLs) */}
+      {/* ================= ADMIN AREA ================= */}
+      <Route path="/admin" element={<AdminRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="logs" element={<AdminLogs />} />
+          <Route path="stats" element={<AdminStats />} />
+        </Route>
+      </Route>
+
+      {/* ================= FALLBACKS ================= */}
       <Route path="/memory-home" element={<Navigate to="/memory" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

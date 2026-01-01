@@ -2,42 +2,32 @@ import axios from "axios";
 
 const axiosClient = axios.create({
   baseURL: "http://localhost:8000",
-  withCredentials: false, // keep false unless using cookies
-  headers: {
-    "Content-Type": "application/json",
-  },
+  withCredentials: false,
 });
 
-// ======================================
-// REQUEST INTERCEPTOR → ADD TOKEN
-// ======================================
+// ================= REQUEST =================
 axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-
     if (token) {
-      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ======================================
-// RESPONSE INTERCEPTOR → HANDLE AUTH ERRORS
-// ======================================
+// ================= RESPONSE =================
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    const status = error?.response?.status;
+    if (!error.response) {
+      alert("Server unreachable");
+      return Promise.reject(error);
+    }
 
-    // 🔒 Token expired / invalid
-    if (status === 401) {
+    if (error.response.status === 401) {
       localStorage.removeItem("token");
-
-      // prevent infinite redirect loop
       if (!window.location.pathname.includes("/login")) {
         window.location.href = "/login";
       }
@@ -46,5 +36,18 @@ axiosClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+
+export const imageChat = (file) => {
+  const form = new FormData();
+  form.append("file", file);
+  return axios.post("/chat/image", form);
+};
+
+export const pdfChat = (file) => {
+  const form = new FormData();
+  form.append("file", file);
+  return axios.post("/chat/pdf", form);
+};
 
 export default axiosClient;

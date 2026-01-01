@@ -1,14 +1,18 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
+
 import {
   memoryChat,
   getMemoryHistory,
   deleteMemory,
   updateMemory,
-} from "../api/chat";
+} from "../api/memory";
+
+
 import { hybridSearch } from "../api/search";
 import "./MemoryHome.css";
+
 
 export default function MemoryHome() {
   const navigate = useNavigate();
@@ -89,28 +93,38 @@ export default function MemoryHome() {
   };
 
   /* ================= ASK / UPDATE ================= */
-  const askOrUpdate = async () => {
-    if (!question.trim()) return;
+const askOrUpdate = async () => {
+  if (!question.trim()) return;
 
+  // EDIT MEMORY (unchanged)
+  if (editingMemory) {
     try {
       setLoadingAsk(true);
-      setAnswer("");
-
-      if (editingMemory) {
-        await updateMemory(editingMemory.id, question);
-        setEditingMemory(null);
-        await loadHistory();
-        alert("Memory updated");
-      } else {
-        const res = await memoryChat(question);
-        setAnswer(res?.data?.answer || "No answer found");
-      }
-    } catch {
-      setAnswer("Something went wrong");
+      await updateMemory(editingMemory.id, question);
+      setEditingMemory(null);
+      await loadHistory();
+      alert("Memory updated");
     } finally {
       setLoadingAsk(false);
     }
-  };
+    return;
+  }
+
+  // 🧠 ASK FROM MEMORY
+  try {
+    setLoadingAsk(true);
+    setAnswer("");
+
+    const res = await memoryChat(question); // ✅ FIX
+
+    setAnswer(res.data.answer);
+  } catch (err) {
+    console.error(err);
+    setAnswer("Something went wrong");
+  } finally {
+    setLoadingAsk(false);
+  }
+};
 
   /* ================= SEARCH ================= */
   const searchMemory = async () => {

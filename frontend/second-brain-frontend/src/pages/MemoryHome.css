@@ -81,11 +81,11 @@
 
 .memory-sidebar {
   width: 300px;
-  height: 100%;
   padding: 16px;
 
   display: flex;
-  flex-direction: column; /* 🔥 REQUIRED */
+  flex-direction: column;
+  align-items: stretch; /* 🔥 ensures equal widths */
 
   background: linear-gradient(
     180deg,
@@ -93,6 +93,7 @@
     rgba(2, 6, 23, 0.95)
   );
 }
+
 
 /* Sidebar scrollbar */
 .memory-sidebar::-webkit-scrollbar {
@@ -115,22 +116,35 @@
 }
 
 /* ===================== NEW CHAT BUTTON ===================== */
-
 .new-chat-btn {
-  background: #305fa6;
+  width: 100%;                /* 🔥 KEY FIX */
+  height: 42px;
+
+  padding: 0 16px;
+  border-radius: 14px;
+
+  background: linear-gradient(
+    135deg,
+    #2a3cff,
+    #1f2bdc
+  );
+
   color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+
   border: none;
-  padding: 8px 14px;
-  border-radius: 10px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
+
+  box-sizing: border-box;     /* 🔥 REQUIRED */
+  box-shadow: 0 10px 28px rgba(42, 60, 255, 0.45);
+
   transition: all 0.2s ease;
 }
 
 .new-chat-btn:hover {
-  background: #388bfd;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 36px rgba(42, 60, 255, 0.65);
 }
 
 .new-chat-btn:active {
@@ -163,6 +177,8 @@
   margin-bottom: 10px;
   cursor: pointer;
   position: relative;
+  width: 100;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .history-item:hover {

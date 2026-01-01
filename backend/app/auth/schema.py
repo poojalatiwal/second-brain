@@ -4,6 +4,7 @@ class SignupRequest(BaseModel):
     username: str
     email: EmailStr
     password: str
+    is_admin: bool = False
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -12,15 +13,10 @@ class LoginRequest(BaseModel):
 class UserResponse(BaseModel):
     id: int
     username: str
-    email: str
+    email: EmailStr
+    is_admin: bool
     access_token: str
     refresh_token: str
 
     class Config:
         from_attributes = True
-
-class SignupRequest(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-    is_admin: bool = False   # NEW

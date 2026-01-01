@@ -35,6 +35,7 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
         id=user.id,
         username=user.username,
         email=user.email,
+        is_admin=user.is_admin,
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id)
     )
@@ -52,6 +53,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         id=user.id,
         username=user.username,
         email=user.email,
+        is_admin=user.is_admin,
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id)
     )

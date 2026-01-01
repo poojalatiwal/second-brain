@@ -1,10 +1,12 @@
 export default function ChatBubble({ role, text }) {
   return (
-    <div style={{
-      textAlign: role === "user" ? "right" : "left",
-      margin: "10px 0"
-    }}>
-      <b>{role}</b>: {text}
+    <div className={`chat-row ${role}`}>
+      <div className="chat-bubble">
+        <div className="chat-role">
+          {role === "user" ? "You" : "AI"}
+        </div>
+        <div className="chat-text">{text}</div>
+      </div>
     </div>
   );
 }

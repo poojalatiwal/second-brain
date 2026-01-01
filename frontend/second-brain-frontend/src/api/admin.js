@@ -1,5 +1,10 @@
-import api from "./axiosClient";
+import axiosClient from "./axiosClient";
 
-export const getUsers = () => api.get("/admin/users");
-export const getLogs = () => api.get("/admin/logs");
-export const getStats = () => api.get("/admin/stats");
+export const getAdminUsers = () =>
+  axiosClient.get("/admin/users");
+
+export const getAdminLogs = () =>
+  axiosClient.get("/admin/logs");
+
+export const getAdminStats = () =>
+  axiosClient.get("/admin/stats");

@@ -202,7 +202,6 @@ async def summarize_memory(
         "user_id": current_user.id,
         "summary": response.choices[0].message.content
     }
-
 @router.get("/history")
 async def memory_history(
     limit: int = 50,
@@ -222,16 +221,17 @@ async def memory_history(
         with_payload=True
     )
 
-    return {
-        "items": [
-            {
-                "id": str(p.id),
-                "text": p.payload.get("text", ""),
-                "preview": p.payload.get("text", "")[:120],
-                "modality": p.payload.get("modality", "text"),
-                "source": p.payload.get("source_url"),
-                "created_at": p.payload.get("timestamp"),
-            }
-            for p in points
-        ]
-    }
+    items = [
+        {
+            "id": str(p.id),
+            "text": p.payload.get("text", ""),
+            "preview": p.payload.get("text", "")[:120],
+            "modality": p.payload.get("modality", "text"),
+            "created_at": p.payload.get("timestamp"),
+        }
+        for p in points
+    ]
+
+    items.sort(key=lambda x: x["created_at"] or "", reverse=True)
+
+    return { "items": items }

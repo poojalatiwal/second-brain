@@ -29,19 +29,48 @@ export default function Login() {
   const googleLogin = () => {
     window.location.href = "http://localhost:8000/auth/google";
   };
-  // Github login
-  const githubLogin = () => {
-  window.location.href = "http://localhost:8000/auth/github";
-};
 
+  // ✅ GitHub Login
+  const githubLogin = () => {
+    window.location.href = "http://localhost:8000/auth/github";
+  };
 
   const submit = async () => {
-    if (!email || !password) return alert("Email and password required");
+    if (!email || !password) {
+      alert("Email and password required");
+      return;
+    }
 
     try {
       const res = await login({ email, password });
-      localStorage.setItem("token", res.data.access_token);
-      navigate("/");
+
+      const {
+        access_token,
+        refresh_token,
+        is_admin,
+        id,
+        username,
+        email: userEmail,
+      } = res.data;
+
+      // ✅ Store auth data
+      localStorage.setItem("token", access_token);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id,
+          username,
+          email: userEmail,
+          is_admin,
+        })
+      );
+
+      // ✅ ROLE-BASED REDIRECT
+      if (is_admin) {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       alert("Invalid credentials");
     }
@@ -80,22 +109,18 @@ export default function Login() {
 
         <div className="auth-divider">Or continue with</div>
 
-        {/* Google */}
         <button className="social-btn" onClick={googleLogin}>
           <img src="/google.svg" alt="Google" />
           Continue with Google
         </button>
 
-        {/* GitHub (next step) */}
         <button className="social-btn" onClick={githubLogin}>
-    <img src="/github.svg" alt="GitHub" />
-    Continue with GitHub
-  </button>
-
+          <img src="/github.svg" alt="GitHub" />
+          Continue with GitHub
+        </button>
 
         <div className="auth-footer">
-          No account?
-          <Link to="/signup">Create one</Link>
+          No account? <Link to="/signup">Create one</Link>
         </div>
       </div>
     </div>
