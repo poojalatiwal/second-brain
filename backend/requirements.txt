@@ -41,5 +41,7 @@ passlib[bcrypt]
 
 # Optional: DeepInfra (if you use their vision APIs)
 httpx
-sentence-transformers
 itsdangerous
+
+pydantic[email]
+email-validator
