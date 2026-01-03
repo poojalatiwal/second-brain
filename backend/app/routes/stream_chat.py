@@ -13,14 +13,14 @@ client = Groq(api_key=settings.GROQ_API_KEY)
 @router.post("/")
 async def stream_answer(
     prompt: str,
-    current_user: User = Depends(get_current_user)   # ✅ AUTH
+    current_user: dict = Depends(get_current_user)  # ✅ AUTH
 ):
     if not prompt.strip():
         raise HTTPException(400, "Prompt cannot be empty")
 
     def generate():
         # (Optional) first chunk can include metadata
-        yield f"[user_id:{current_user.id}]\n"
+        yield f"[user_id:{current_user["id"] }]\n"
 
         stream = client.chat.completions.create(
             model="llama-3.3-70b-versatile",

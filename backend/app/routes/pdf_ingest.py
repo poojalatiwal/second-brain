@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post("/pdf")
 async def ingest_pdf(
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user)   # ✅ AUTH
+    current_user: dict = Depends(get_current_user)  # ✅ AUTH
 ):
     if not file.filename:
         raise HTTPException(400, "No PDF file provided")
@@ -52,7 +52,7 @@ async def ingest_pdf(
                 "text": chunk,
                 "modality": "pdf",
                 "filename": file.filename,
-                "user_id": current_user.id   # ✅ CRITICAL FIX
+                "user_id": current_user["id"]   # ✅ CRITICAL FIX
             }
         )
 
@@ -60,7 +60,7 @@ async def ingest_pdf(
 
     return {
         "status": "stored",
-        "user_id": current_user.id,
+        "user_id": current_user["id"] ,
         "filename": file.filename,
         "pages": len(reader.pages),
         "chunks_stored": len(stored_ids)

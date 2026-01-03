@@ -16,7 +16,7 @@ client = Groq(api_key=settings.GROQ_API_KEY)
 @router.post("/audio")
 async def chat_with_audio(
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user)   # ✅ AUTH
+    current_user: dict = Depends(get_current_user) # ✅ AUTH
 ):
     """
     Conversational audio → text → memory-aware response
@@ -43,7 +43,7 @@ async def chat_with_audio(
 
     results = search_vectors(
         vector=emb,
-        user_id=current_user.id,     # ✅ CRITICAL FIX
+        user_id=current_user["id"] ,     # ✅ CRITICAL FIX
         top_k=5
     )
 
@@ -79,7 +79,7 @@ Respond naturally.
     answer = reply.choices[0].message.content
 
     return {
-        "user_id": current_user.id,
+        "user_id": current_user["id"] ,
         "user_said": user_text,
         "assistant_reply": answer,
         "memory_used": context if context else "No relevant memory found",

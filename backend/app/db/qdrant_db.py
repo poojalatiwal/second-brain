@@ -1,38 +1,67 @@
 from qdrant_client import QdrantClient
-from qdrant_client.models import VectorParams, Distance, Filter, FieldCondition, MatchValue
+from qdrant_client.models import (
+    Filter,
+    FieldCondition,
+    MatchValue,
+    MatchText,   # ✅ ADD THIS
+)
 from app.config import settings
 from datetime import datetime
-
-
+import time
 # ------------------------------------------------------
-# QDRANT CLIENT INITIALIZATION
+# QDRANT CLIENT
 # ------------------------------------------------------
 
 qdrant = QdrantClient(
     url=settings.QDRANT_URL,
     api_key=settings.QDRANT_API_KEY,
-    prefer_grpc=False
+    prefer_grpc=False,
+    timeout=60,
 )
 
+# ------------------------------------------------------
+# CONSTANTS
+# ------------------------------------------------------
+
+COLLECTION_NAME = "memory"
+EMBEDDING_SIZE = 1024 # ✅ MUST MATCH YOUR EMBEDDINGS
 
 # ------------------------------------------------------
-# CREATE COLLECTION IF NOT EXISTS
+# ENSURE COLLECTION EXISTS (RUN ON STARTUP)
 # ------------------------------------------------------
 
-def init_qdrant():
-    collections = [c.name for c in qdrant.get_collections().collections]
 
-    if "memory" not in collections:
+from qdrant_client.models import PayloadSchemaType
+
+def ensure_qdrant_collection():
+    collections = qdrant.get_collections().collections
+    names = [c.name for c in collections]
+
+    if COLLECTION_NAME not in names:
         qdrant.create_collection(
-            collection_name="memory",
+            collection_name=COLLECTION_NAME,
             vectors_config=VectorParams(
-                size=384,
-                distance=Distance.COSINE
+                size=EMBEDDING_SIZE,
+                distance=Distance.COSINE,
             )
         )
-        print("✅ Created Qdrant collection: memory")
-    else:
-        print("📌 Qdrant collection already exists: memory")
+
+    # ✅ REQUIRED PAYLOAD INDEXES
+    indexes = [
+        ("user_id", PayloadSchemaType.INTEGER),
+        ("text", PayloadSchemaType.TEXT),       # 🔥 FIX
+        ("modality", PayloadSchemaType.KEYWORD) # optional but recommended
+    ]
+
+    for field, schema in indexes:
+        try:
+            qdrant.create_payload_index(
+                collection_name=COLLECTION_NAME,
+                field_name=field,
+                field_schema=schema,
+            )
+        except Exception:
+            pass  # already exists
 
 
 # ------------------------------------------------------
@@ -42,48 +71,42 @@ def init_qdrant():
 def insert_vector(id: str, embedding: list, payload: dict):
     payload["timestamp"] = datetime.utcnow().isoformat()
 
-    try:
-        qdrant.upsert(
-            collection_name="memory",
-            points=[
-                {
-                    "id": id,
-                    "vector": embedding,
-                    "payload": payload,
-                }
-            ],
-        )
-        print(f"✅ Inserted vector: {id}")
-    except Exception as e:
-        print("❌ ERROR INSERTING INTO QDRANT:", e)
-        raise e
-
+    qdrant.upsert(
+        collection_name=COLLECTION_NAME,
+        points=[
+            {
+                "id": id,
+                "vector": embedding,
+                "payload": payload,
+            }
+        ],
+    )
 
 # ------------------------------------------------------
-# SEARCH VECTOR (FIXED)
+# SEARCH VECTORS
 # ------------------------------------------------------
 
 def search_vectors(vector: list, user_id: int, top_k: int = 5):
-    """
-    Searches memory only for the given user_id.
-    Compatible with NEW Qdrant Python SDK.
-    """
-
     query_filter = Filter(
         must=[
             FieldCondition(
                 key="user_id",
-                match=MatchValue(value=user_id)
+                match=MatchValue(value=user_id),
             )
         ]
     )
 
-    result = qdrant.query_points(
-        collection_name="memory",
-        query=vector,
-        query_filter=query_filter,   # ✅ FIXED (not filter=)
-        limit=top_k,
-        with_payload=True
-    )
-
-    return result.points   # ✅ FIXED (points, not point)
+    for attempt in range(2):  # 🔁 retry once
+        try:
+            result = qdrant.query_points(
+                collection_name=COLLECTION_NAME,
+                query=vector,
+                query_filter=query_filter,
+                limit=top_k,
+                with_payload=True,
+            )
+            return result.points
+        except Exception as e:
+            if attempt == 1:
+                raise
+            time.sleep(1)  # wait 1s and retry

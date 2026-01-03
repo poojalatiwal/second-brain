@@ -1,0 +1,70 @@
+.chat-row {
+  display: flex;
+  margin-bottom: 14px;
+}
+
+.chat-row.user {
+  justify-content: flex-end;
+}
+
+.chat-row.ai {
+  justify-content: flex-start;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  background: #0b1220;
+  color: #e5e7eb;
+  padding: 14px 18px;
+  border-radius: 14px;
+  line-height: 1.7;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.chat-row.user .chat-bubble {
+  background: #1e293b;
+}
+
+.chat-role {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+
+/* ===== MARKDOWN FIXES ===== */
+
+.chat-text {
+  white-space: normal;
+}
+
+.chat-text p {
+  margin-bottom: 0.7rem;
+}
+
+.chat-text h1,
+.chat-text h2,
+.chat-text h3 {
+  margin: 1rem 0 0.4rem;
+  font-weight: 600;
+}
+
+.chat-text ul {
+  padding-left: 1.2rem;
+  margin-bottom: 0.7rem;
+}
+
+.chat-text li {
+  margin-bottom: 0.35rem;
+}
+
+.chat-text strong {
+  font-weight: 600;
+}
+
+.chat-text code {
+  background: rgba(255,255,255,0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}

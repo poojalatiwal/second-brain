@@ -40,13 +40,31 @@ def make_title(text: str) -> str:
 
 
 # ======================= STREAMING =======================
-
 def stream_llm(prompt: str, session: ChatSession, db: Session):
     full_answer = ""
 
     completion = groq.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {
+                "role": "system",
+                "content": """
+You are an AI assistant that MUST respond in a clean, structured format.
+
+Formatting Rules:
+- Use Markdown
+- Use headings with ##
+- Use bullet points (-)
+- One idea per bullet
+- No long paragraphs
+- No mixed headings and text
+"""
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
         stream=True,
     )
 
@@ -67,25 +85,27 @@ def stream_llm(prompt: str, session: ChatSession, db: Session):
     yield "data: [DONE]\n\n"
 
 
+
 # ======================= TEXT CHAT =======================
 
 @router.post("/stream")
 def chat_stream(
     data: TextChat,
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
+   user: dict = Depends(get_current_user),
 ):
     session = None
 
     if data.session_id:
         session = db.query(ChatSession).filter(
             ChatSession.id == data.session_id,
-            ChatSession.user_id == user.id
+            ChatSession.user_id == user["id"]
+
         ).first()
 
     if not session:
         session = ChatSession(
-            user_id=user.id,
+            user_id=user["id"],
             title=make_title(data.prompt)
         )
         db.add(session)
@@ -93,7 +113,18 @@ def chat_stream(
         db.refresh(session)
 
     # 🔥 SMART CONTEXT INJECTION (NOT STRICT)
-    prompt = data.prompt
+    prompt = f"""
+Answer the following question in a structured format.
+
+Requirements:
+- Headings
+- Bullet points
+- Clear separation of ideas
+
+Question:
+{data.prompt}
+"""
+
 
     if session.active_context:
         prompt = f"""
@@ -130,7 +161,7 @@ async def chat_image(
     question: str | None = None,
     session_id: int | None = None,
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: dict = Depends(get_current_user),
 ):
     image_bytes = await file.read()
     image_base64 = base64.b64encode(image_bytes).decode()
@@ -141,11 +172,12 @@ async def chat_image(
     if session_id:
         session = db.query(ChatSession).filter(
             ChatSession.id == session_id,
-            ChatSession.user_id == user.id
+            ChatSession.user_id == user["id"]
+
         ).first()
 
     if not session:
-        session = ChatSession(user_id=user.id, title=make_title(user_question))
+        session = ChatSession(user_id=user["id"], title=make_title(user_question))
         db.add(session)
         db.commit()
         db.refresh(session)
@@ -190,7 +222,7 @@ async def chat_pdf(
     question: str | None = None,
     session_id: int | None = None,
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: dict = Depends(get_current_user),
 ):
     reader = PdfReader(BytesIO(await file.read()))
     full_text = "\n".join(page.extract_text() or "" for page in reader.pages)
@@ -205,7 +237,8 @@ async def chat_pdf(
     if session_id:
         session = db.query(ChatSession).filter(
             ChatSession.id == session_id,
-            ChatSession.user_id == user.id
+            ChatSession.user_id == user["id"]
+
         ).first()
 
     if not session:
@@ -251,7 +284,8 @@ User Question:
 def list_sessions(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     return (
         db.query(ChatSession)
-        .filter(ChatSession.user_id == user.id)
+        .filter(ChatSession.user_id == user["id"]
+)
         .order_by(ChatSession.created_at.desc())
         .all()
     )
@@ -261,7 +295,7 @@ def list_sessions(db: Session = Depends(get_db), user: User = Depends(get_curren
 def get_history(
     session_id: int,
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
+     user: dict = Depends(get_current_user),
 ):
     return (
         db.query(ChatMessage)

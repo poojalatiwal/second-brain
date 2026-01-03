@@ -9,10 +9,8 @@ import {
   updateMemory,
 } from "../api/memory";
 
-
 import { hybridSearch } from "../api/search";
 import "./MemoryHome.css";
-
 
 export default function MemoryHome() {
   const navigate = useNavigate();
@@ -93,38 +91,34 @@ export default function MemoryHome() {
   };
 
   /* ================= ASK / UPDATE ================= */
-const askOrUpdate = async () => {
-  if (!question.trim()) return;
+  const askOrUpdate = async () => {
+    if (!question.trim()) return;
 
-  // EDIT MEMORY (unchanged)
-  if (editingMemory) {
+    if (editingMemory) {
+      try {
+        setLoadingAsk(true);
+        await updateMemory(editingMemory.id, question);
+        setEditingMemory(null);
+        await loadHistory();
+        alert("Memory updated");
+      } finally {
+        setLoadingAsk(false);
+      }
+      return;
+    }
+
     try {
       setLoadingAsk(true);
-      await updateMemory(editingMemory.id, question);
-      setEditingMemory(null);
-      await loadHistory();
-      alert("Memory updated");
+      setAnswer("");
+      const res = await memoryChat(question);
+      setAnswer(res.data.answer);
+    } catch (err) {
+      console.error(err);
+      setAnswer("Something went wrong");
     } finally {
       setLoadingAsk(false);
     }
-    return;
-  }
-
-  // 🧠 ASK FROM MEMORY
-  try {
-    setLoadingAsk(true);
-    setAnswer("");
-
-    const res = await memoryChat(question); // ✅ FIX
-
-    setAnswer(res.data.answer);
-  } catch (err) {
-    console.error(err);
-    setAnswer("Something went wrong");
-  } finally {
-    setLoadingAsk(false);
-  }
-};
+  };
 
   /* ================= SEARCH ================= */
   const searchMemory = async () => {
@@ -148,9 +142,10 @@ const askOrUpdate = async () => {
       <div className="memory-layout">
         {/* ========== LEFT SIDEBAR ========== */}
         <aside className="memory-sidebar">
-           <button className="new-chat-btn" onClick={newChat}>
-              ＋ New Chat
-            </button>
+          <button className="new-chat-btn" onClick={newChat}>
+            ＋ New Chat
+          </button>
+
           <div className="sidebar-header">
             <h3>📜 Memory History</h3>
           </div>
@@ -166,35 +161,34 @@ const askOrUpdate = async () => {
                 }`}
                 onClick={() => handleOpen(item)}
               >
-               <div className="history-header">
-  <span className="history-type">
-    {item.modality?.toUpperCase()}
-  </span>
+                <div className="history-header">
+                  <span className="history-type">
+                    {item.modality?.toUpperCase()}
+                  </span>
 
-  <button
-    className="menu-btn"
-    onClick={(e) => {
-      e.stopPropagation();
-      toggleMenu(item.id);
-    }}
-  >
-    ⋮
-  </button>
+                  <button
+                    className="menu-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleMenu(item.id);
+                    }}
+                  >
+                    ⋮
+                  </button>
 
-  {openMenuId === item.id && (
-    <div className="menu-dropdown">
-      <button onClick={() => handleOpen(item)}>Open</button>
-      <button disabled>📌 Pin (soon)</button>
-      <button
-        className="danger"
-        onClick={() => handleDelete(item.id)}
-      >
-        Delete
-      </button>
-    </div>
-  )}
-</div>
-
+                  {openMenuId === item.id && (
+                    <div className="menu-dropdown">
+                      <button onClick={() => handleOpen(item)}>Open</button>
+                      <button disabled>📌 Pin (soon)</button>
+                      <button
+                        className="danger"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
 
                 <p className="history-preview">{item.preview}</p>
               </div>
@@ -204,13 +198,11 @@ const askOrUpdate = async () => {
 
         {/* ========== RIGHT PANEL ========== */}
         <main className="memory-main">
-          {/* ===== MEMORY VIEW ===== */}
           {selectedMemory && (
             <div className="panel memory-viewer">
               <h3>📄 Memory</h3>
               <div className="memory-meta">
                 <span>{selectedMemory.modality?.toUpperCase()}</span>
-                {selectedMemory.source && <span>{selectedMemory.source}</span>}
               </div>
               <div className="memory-content">{selectedMemory.text}</div>
             </div>
@@ -218,9 +210,7 @@ const askOrUpdate = async () => {
 
           {/* ===== ASK / EDIT ===== */}
           <div className="panel">
-            <h2>
-              {editingMemory ? "✏️ Edit Memory" : "🧠 Ask from Memory"}
-            </h2>
+            <h2>{editingMemory ? "✏️ Edit Memory" : "🧠 Ask from Memory"}</h2>
 
             <textarea
               placeholder={
@@ -232,7 +222,11 @@ const askOrUpdate = async () => {
               onChange={(e) => setQuestion(e.target.value)}
             />
 
-            <button className="upload-btn" onClick={askOrUpdate} disabled={loadingAsk}>
+            <button
+              className="upload-btn"
+              onClick={askOrUpdate}
+              disabled={loadingAsk}
+            >
               {loadingAsk
                 ? "Processing..."
                 : editingMemory
@@ -249,75 +243,78 @@ const askOrUpdate = async () => {
           </div>
 
           {/* ===== SEARCH ===== */}
-         <div className="panel">
-  <h2>🔍 Search Memory</h2>
+          <div className="panel">
+            <h2>🔍 Search Memory</h2>
 
-  {/* Styled search input */}
-  <input
-    type="text"
-    className="file-input"
-    placeholder="Search keywords or concepts..."
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-  />
+            <input
+              type="text"
+              className="file-input"
+              placeholder="Search keywords or concepts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
 
-  {/* Search button (same style as upload buttons) */}
-  <button
-    className="upload-btn"
-    onClick={searchMemory}
-    disabled={loadingSearch}
-  >
-    {loadingSearch ? "Searching..." : "Search"}
-  </button>
+            <button
+              className="upload-btn"
+              onClick={searchMemory}
+              disabled={loadingSearch}
+            >
+              {loadingSearch ? "Searching..." : "Search"}
+            </button>
 
-  {/* Results */}
-  {searchResult && (
-    <div className="search-results">
-      {searchResult.semantic.map((item, idx) => (
-        <div key={idx} className="result-item">
-          <p>{item.text}</p>
-          <small>Score: {item.score.toFixed(3)}</small>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+            {searchResult?.results?.length > 0 && (
+              <div className="search-results">
+                {searchResult.results.map((item, idx) => (
+                  <div key={idx} className="result-item">
+                    <p>{item.text}</p>
+                    {item.score !== null && (
+                      <small>Score: {item.score.toFixed(3)}</small>
+                    )}
+                    <small className="muted">Source: {item.source}</small>
+                  </div>
+                ))}
+              </div>
+            )}
 
+            {searchResult?.results?.length === 0 && (
+              <p className="muted">No results found</p>
+            )}
+          </div>
 
           {/* ===== ADD ===== */}
           <h3 className="section-title">➕ Add to Memory</h3>
 
-<div className="add-memory-grid">
-  <div className="add-memory-card" onClick={() => navigate("text")}>
-    <div className="icon">📝</div>
-    <h4>Text</h4>
-    <p>Add notes or paragraphs</p>
-  </div>
+          <div className="add-memory-grid">
+            <div className="add-memory-card" onClick={() => navigate("text")}>
+              <div className="icon">📝</div>
+              <h4>Text</h4>
+              <p>Add notes or paragraphs</p>
+            </div>
 
-  <div className="add-memory-card" onClick={() => navigate("pdf")}>
-    <div className="icon">📄</div>
-    <h4>PDF</h4>
-    <p>Upload documents</p>
-  </div>
+            <div className="add-memory-card" onClick={() => navigate("pdf")}>
+              <div className="icon">📄</div>
+              <h4>PDF</h4>
+              <p>Upload documents</p>
+            </div>
 
-  <div className="add-memory-card" onClick={() => navigate("image")}>
-    <div className="icon">🖼️</div>
-    <h4>Image</h4>
-    <p>Extract text from images</p>
-  </div>
+            <div className="add-memory-card" onClick={() => navigate("image")}>
+              <div className="icon">🖼️</div>
+              <h4>Image</h4>
+              <p>Extract text from images</p>
+            </div>
 
-  <div className="add-memory-card" onClick={() => navigate("url")}>
-    <div className="icon">🌐</div>
-    <h4>Website</h4>
-    <p>Store webpage content</p>
-  </div>
+            <div className="add-memory-card" onClick={() => navigate("url")}>
+              <div className="icon">🌐</div>
+              <h4>Website</h4>
+              <p>Store webpage content</p>
+            </div>
 
-  <div className="add-memory-card" onClick={() => navigate("audio")}>
-    <div className="icon">🎧</div>
-    <h4>Audio</h4>
-    <p>Speech & recordings</p>
-  </div>
-</div>
+            <div className="add-memory-card" onClick={() => navigate("audio")}>
+              <div className="icon">🎧</div>
+              <h4>Audio</h4>
+              <p>Speech & recordings</p>
+            </div>
+          </div>
 
           <Outlet />
         </main>

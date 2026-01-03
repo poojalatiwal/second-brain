@@ -4,10 +4,8 @@ from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.db.postgree import get_db
 from .models import User
 
 # =====================================
@@ -67,8 +65,7 @@ def decode_token(token: str) -> dict:
 # =====================================
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db),
-) -> User:
+) -> dict:
     token = credentials.credentials
     payload = decode_token(token)
 
@@ -85,14 +82,12 @@ def get_current_user(
             detail="Invalid token",
         )
 
-    user = db.query(User).filter(User.id == int(user_id)).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-        )
+    # ✅ NO DATABASE TOUCH
+    return {
+        "id": int(user_id),
+        "is_admin": payload.get("is_admin", False),
+    }
 
-    return user
 
 # =====================================
 # ADMIN GUARD

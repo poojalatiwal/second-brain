@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post("/image")
 async def ingest_image(
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user)   # ✅ AUTH
+    current_user: dict = Depends(get_current_user)  # ✅ AUTH
 ):
     if not file.filename:
         raise HTTPException(400, "No image file provided")
@@ -50,7 +50,7 @@ async def ingest_image(
                 "text": chunk,
                 "modality": "image",
                 "filename": file.filename,
-                "user_id": current_user.id    # ✅ CRITICAL FIX
+                "user_id": current_user["id"]    # ✅ CRITICAL FIX
             }
         )
 
@@ -58,7 +58,7 @@ async def ingest_image(
 
     return {
         "status": "stored",
-        "user_id": current_user.id,
+        "user_id": current_user["id"] ,
         "filename": file.filename,
         "chunks_stored": len(stored_ids),
         "preview": text[:200] + "..."

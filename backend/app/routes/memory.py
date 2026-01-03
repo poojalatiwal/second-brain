@@ -22,7 +22,7 @@ class AddMemory(BaseModel):
 @router.post("/add")
 async def add_memory(
     data: AddMemory,
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     embedding = get_embedding(data.text)
     memory_id = str(uuid.uuid4())
@@ -32,13 +32,13 @@ async def add_memory(
         embedding=embedding,
         payload={
             "text": data.text,
-            "user_id": current_user.id
+            "user_id": current_user["id"] 
         }
     )
 
     return {
         "id": memory_id,
-        "user_id": current_user.id,
+        "user_id": current_user["id"] ,
         "text": data.text
     }
 
@@ -49,19 +49,19 @@ async def add_memory(
 @router.get("/search")
 async def search_memory(
     query: str,
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     emb = get_embedding(query)
 
     results = search_vectors(
         vector=emb,
-        user_id=current_user.id,
+        user_id=current_user["id"] ,
         top_k=5
     )
 
     return {
         "query": query,
-        "user_id": current_user.id,
+        "user_id": current_user["id"] ,
         "results": [
             {
                 "id": p.id,
@@ -79,7 +79,7 @@ async def search_memory(
 @router.delete("/delete/{memory_id}")
 async def delete_memory(
     memory_id: str,
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     # 1️⃣ Verify ownership
     points, _ = qdrant.scroll(
@@ -88,7 +88,7 @@ async def delete_memory(
             must=[
                 FieldCondition(
                     key="user_id",
-                    match=MatchValue(value=current_user.id)
+                    match=MatchValue(value=current_user["id"] )
                 )
             ]
         ),
@@ -106,7 +106,7 @@ async def delete_memory(
 
     return {
         "deleted": memory_id,
-        "user_id": current_user.id
+        "user_id": current_user["id"] 
     }
 
 
@@ -120,7 +120,7 @@ class UpdateMemory(BaseModel):
 async def update_memory(
     memory_id: str,
     data: UpdateMemory,
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     # 1️⃣ Verify ownership
     points, _ = qdrant.scroll(
@@ -129,7 +129,7 @@ async def update_memory(
             must=[
                 FieldCondition(
                     key="user_id",
-                    match=MatchValue(value=current_user.id)
+                    match=MatchValue(value=current_user["id"] )
                 )
             ]
         ),
@@ -147,7 +147,7 @@ async def update_memory(
         embedding=embedding,
         payload={
             "text": data.new_text,
-            "user_id": current_user.id
+            "user_id": current_user["id"] 
         }
     )
 
@@ -161,7 +161,7 @@ async def update_memory(
 # ============================================================
 @router.get("/summarize")
 async def summarize_memory(
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     points, _ = qdrant.scroll(
         collection_name="memory",
@@ -169,7 +169,7 @@ async def summarize_memory(
             must=[
                 FieldCondition(
                     key="user_id",
-                    match=MatchValue(value=current_user.id)
+                    match=MatchValue(value=current_user["id"] )
                 )
             ]
         ),
@@ -199,13 +199,13 @@ async def summarize_memory(
     )
 
     return {
-        "user_id": current_user.id,
+        "user_id": current_user["id"] ,
         "summary": response.choices[0].message.content
     }
 @router.get("/history")
 async def memory_history(
     limit: int = 50,
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     points, _ = qdrant.scroll(
         collection_name="memory",
@@ -213,7 +213,7 @@ async def memory_history(
             must=[
                 FieldCondition(
                     key="user_id",
-                    match=MatchValue(value=current_user.id)
+                    match=MatchValue(value=current_user["id"] )
                 )
             ]
         ),

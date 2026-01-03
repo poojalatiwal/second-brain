@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { login } from "../api/auth";
 import { Link, useNavigate } from "react-router-dom";
+import googleIcon from "/google.svg";
+import githubIcon from "/github.svg";
 
 /* Eye Icon */
 function EyeIcon({ open }) {
@@ -110,14 +112,15 @@ export default function Login() {
         <div className="auth-divider">Or continue with</div>
 
         <button className="social-btn" onClick={googleLogin}>
-          <img src="/google.svg" alt="Google" />
-          Continue with Google
-        </button>
+  <img src={googleIcon} alt="Google" />
+  Continue with Google
+</button>
 
         <button className="social-btn" onClick={githubLogin}>
-          <img src="/github.svg" alt="GitHub" />
+          <img src={githubIcon} alt="GitHub" />
           Continue with GitHub
-        </button>
+</button>
+
 
         <div className="auth-footer">
           No account? <Link to="/signup">Create one</Link>

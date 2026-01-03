@@ -11,7 +11,7 @@ router = APIRouter()
 @router.post("/text")
 async def ingest_text(
     text: str,
-    current_user: User = Depends(get_current_user)  # ✅ AUTH REQUIRED
+    current_user: dict = Depends(get_current_user) # ✅ AUTH REQUIRED
 ):
     if not text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty")
@@ -27,12 +27,12 @@ async def ingest_text(
             payload={
                 "text": chunk,
                 "modality": "text",
-                "user_id": current_user.id   # ✅ CRITICAL FIX
+                "user_id": current_user["id"]   # ✅ CRITICAL FIX
             }
         )
 
     return {
         "status": "ok",
         "chunks": len(chunks),
-        "user_id": current_user.id
+        "user_id":current_user["id"]
     }

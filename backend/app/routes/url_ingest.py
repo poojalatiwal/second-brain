@@ -16,7 +16,7 @@ router = APIRouter()
 async def ingest_url(
     request: Request,
     url: str = Query(None),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     if request.method == "POST" and url is None:
         body = await request.json()
@@ -65,7 +65,7 @@ async def ingest_url(
             "modality": "url_summary",
             "title": title,
             "source_url": url,
-            "user_id": current_user.id
+            "user_id": current_user["id"] 
         }
     )
 
@@ -82,7 +82,7 @@ async def ingest_url(
                 "modality": "url",
                 "title": title,
                 "source_url": url,
-                "user_id": current_user.id
+                "user_id": current_user["id"] 
             }
         )
         stored_ids.append(uid)
@@ -92,5 +92,5 @@ async def ingest_url(
         "url": url,
         "title": title,
         "chunks_stored": len(stored_ids),
-        "user_id": current_user.id
+        "user_id": current_user["id"] 
     }

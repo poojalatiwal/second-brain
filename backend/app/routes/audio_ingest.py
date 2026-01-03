@@ -18,7 +18,7 @@ client = Groq(api_key=settings.GROQ_API_KEY)
 @router.post("/audio")
 async def ingest_audio(
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     if not file or not file.filename:
         raise HTTPException(400, "No audio file provided")
@@ -57,7 +57,7 @@ Transcript:
         payload={
             "text": summary,
             "modality": "audio_summary",
-            "user_id": current_user.id,
+            "user_id": current_user["id"] ,
             "filename": file.filename
         }
     )
@@ -70,13 +70,13 @@ Transcript:
             payload={
                 "text": chunk,
                 "modality": "audio",
-                "user_id": current_user.id,
+                "user_id": current_user["id"] ,
                 "filename": file.filename
             }
         )
 
     return {
         "status": "stored",
-        "user_id": current_user.id,
+        "user_id": current_user["id"] ,
         "summary": summary
     }

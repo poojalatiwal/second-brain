@@ -18,7 +18,7 @@ class MemoryQuestion(BaseModel):
 @router.post("/")
 async def ask_from_memory(
     data: MemoryQuestion,
-    current_user=Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     question = data.question.strip()
     if not question:
@@ -28,7 +28,7 @@ async def ask_from_memory(
 
     results = search_vectors(
         vector=embedding,
-        user_id=current_user.id,
+        user_id=current_user["id"] ,
         top_k=5
     )
 
@@ -69,7 +69,7 @@ Rules:
         embedding=get_embedding(f"{question} {answer}"),
         payload={
             "text": f"Q: {question}\nA: {answer}",
-            "user_id": current_user.id,
+            "user_id": current_user["id"] ,
             "modality": "chat",
         }
     )
