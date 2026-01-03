@@ -12,7 +12,8 @@ qdrant-client
 sentence-transformers
 numpy
 scipy
-
+pydantic
+pypdf
 # PDF ingestion
 PyMuPDF
 
