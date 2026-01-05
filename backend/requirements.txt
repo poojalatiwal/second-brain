@@ -45,3 +45,4 @@ itsdangerous
 
 pydantic[email]
 email-validator
+jose
