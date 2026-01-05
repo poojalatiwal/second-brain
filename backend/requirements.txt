@@ -1,48 +1,61 @@
+# -------------------------
+# Core framework
+# -------------------------
 fastapi
 uvicorn
 
+# -------------------------
 # Database
+# -------------------------
 sqlalchemy
 psycopg2-binary
 
-# Vector DB
+# -------------------------
+# Vector Database
+# -------------------------
 qdrant-client
 
+# -------------------------
 # Embeddings / NLP
+# -------------------------
 sentence-transformers
 numpy
 scipy
+
+# -------------------------
+# File & Document Handling
+# -------------------------
 pydantic
+pydantic[email]
+email-validator
 pypdf
-# PDF ingestion
 PyMuPDF
-
-# Environment variables
-python-dotenv
-
-# File uploads
 python-multipart
-
-# HTTP requests
-requests
-beautifulsoup4
-
-# Chat models + Whisper
-openai
-groq
-
-# Image processing helpers
 pillow
 
-# Security + JWT auth
+# -------------------------
+# HTTP / Web scraping
+# -------------------------
+requests
+httpx
+beautifulsoup4
+
+# -------------------------
+# Environment
+# -------------------------
+python-dotenv
+
+# -------------------------
+# Auth & Security (IMPORTANT)
+# -------------------------
+python-jose[cryptography]
 PyJWT
 cryptography
 passlib[bcrypt]
-
-# Optional: DeepInfra (if you use their vision APIs)
-httpx
 itsdangerous
 
-pydantic[email]
-email-validator
-python-jose[cryptography]
+# -------------------------
+# AI / LLM APIs
+# -------------------------
+openai
+groq
