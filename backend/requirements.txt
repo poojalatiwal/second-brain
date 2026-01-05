@@ -59,3 +59,5 @@ itsdangerous
 # -------------------------
 openai
 groq
+
+argon2-cffi
