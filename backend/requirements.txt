@@ -1,63 +1,76 @@
-# -------------------------
-# Core framework
-# -------------------------
+# =========================
+# Core FastAPI stack
+# =========================
 fastapi
-uvicorn
+uvicorn[standard]
+starlette
 
-# -------------------------
-# Database
-# -------------------------
+# =========================
+# Database (PostgreSQL + ORM)
+# =========================
 sqlalchemy
 psycopg2-binary
 
-# -------------------------
-# Vector Database
-# -------------------------
-qdrant-client
-
-# -------------------------
-# Embeddings / NLP
-# -------------------------
-sentence-transformers
-numpy
-scipy
-
-# -------------------------
-# File & Document Handling
-# -------------------------
-pydantic
-pydantic[email]
-email-validator
-pypdf
-PyMuPDF
-python-multipart
-pillow
-
-# -------------------------
-# HTTP / Web scraping
-# -------------------------
-requests
-httpx
-beautifulsoup4
-
-# -------------------------
-# Environment
-# -------------------------
-python-dotenv
-
-# -------------------------
-# Auth & Security (IMPORTANT)
-# -------------------------
+# =========================
+# Auth & Security
+# =========================
 python-jose[cryptography]
 PyJWT
 cryptography
 passlib[bcrypt]
+argon2-cffi
 itsdangerous
+email-validator
+authlib
 
-# -------------------------
-# AI / LLM APIs
-# -------------------------
+# =========================
+# Environment & config
+# =========================
+python-dotenv
+
+# =========================
+# File uploads & forms
+# =========================
+python-multipart
+
+# =========================
+# HTTP & scraping
+# =========================
+requests
+beautifulsoup4
+httpx
+
+# =========================
+# Vector DB (Qdrant)
+# =========================
+qdrant-client
+
+# =========================
+# Embeddings & NLP
+# =========================
+sentence-transformers
+numpy
+scipy
+
+# =========================
+# PDF / Document processing
+# =========================
+pypdf
+PyMuPDF
+
+# =========================
+# Image handling
+# =========================
+pillow
+
+# =========================
+# LLM Providers
+# =========================
 openai
 groq
 
-argon2-cffi
+# =========================
+# Data models
+# =========================
+pydantic
+pydantic[email]
