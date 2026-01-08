@@ -15,7 +15,7 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 @router.get("/users")
 def get_users(
     db: Session = Depends(get_db),
-    curr_user: User = Depends(get_current_user)
+    curr_user: dict = Depends(get_current_user)
 ):
     require_admin(curr_user)
 
@@ -36,7 +36,7 @@ def get_users(
 # 2️⃣ SYSTEM LOGS (TEMP)
 # =========================
 @router.get("/logs")
-def get_logs(curr_user: User = Depends(get_current_user)):
+def get_logs(curr_user: dict = Depends(get_current_user)):
     require_admin(curr_user)
 
     # TODO: replace with DB-backed logs later
@@ -54,7 +54,7 @@ def get_logs(curr_user: User = Depends(get_current_user)):
 @router.get("/stats")
 def get_admin_stats(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
     # 🔐 Admin check
     require_admin(current_user)

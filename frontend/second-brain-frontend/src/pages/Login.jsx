@@ -24,6 +24,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ NEW
 
   const navigate = useNavigate();
 
@@ -37,13 +38,18 @@ export default function Login() {
     window.location.href = "http://localhost:8000/auth/github";
   };
 
-  const submit = async () => {
+  // ✅ FORM SUBMIT HANDLER
+  const submit = async (e) => {
+    if (e) e.preventDefault(); // ✅ prevents page reload
+
     if (!email || !password) {
       alert("Email and password required");
       return;
     }
 
     try {
+      setLoading(true); // ✅ start loading
+
       const res = await login({ email, password });
 
       const {
@@ -55,7 +61,6 @@ export default function Login() {
         email: userEmail,
       } = res.data;
 
-      // ✅ Store auth data
       localStorage.setItem("token", access_token);
       localStorage.setItem(
         "user",
@@ -67,7 +72,6 @@ export default function Login() {
         })
       );
 
-      // ✅ ROLE-BASED REDIRECT
       if (is_admin) {
         navigate("/admin");
       } else {
@@ -75,12 +79,14 @@ export default function Login() {
       }
     } catch (err) {
       alert("Invalid credentials");
+    } finally {
+      setLoading(false); // ✅ stop loading
     }
   };
 
   return (
     <div className="auth-page">
-      <div className="auth">
+      <form className="auth" onSubmit={submit}> {/* ✅ FORM */}
         <h2>Login</h2>
 
         <input
@@ -105,27 +111,26 @@ export default function Login() {
           </button>
         </div>
 
-        <button className="primary" onClick={submit}>
-          Login
+        <button className="primary" type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         <div className="auth-divider">Or continue with</div>
 
-        <button className="social-btn" onClick={googleLogin}>
-  <img src={googleIcon} alt="Google" />
-  Continue with Google
-</button>
+        <button type="button" className="social-btn" onClick={googleLogin} disabled={loading}>
+          <img src={googleIcon} alt="Google" />
+          Continue with Google
+        </button>
 
-        <button className="social-btn" onClick={githubLogin}>
+        <button type="button" className="social-btn" onClick={githubLogin} disabled={loading}>
           <img src={githubIcon} alt="GitHub" />
           Continue with GitHub
-</button>
-
+        </button>
 
         <div className="auth-footer">
           No account? <Link to="/signup">Create one</Link>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
+from sqlalchemy.orm import Session
+from app.db.postgree import get_db
 from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from argon2 import PasswordHasher
@@ -63,37 +65,36 @@ def decode_token(token: str) -> dict:
 # =====================================
 # GET CURRENT USER
 # =====================================
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
 ) -> dict:
+
     token = credentials.credentials
     payload = decode_token(token)
 
     if payload.get("type") != "access":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token type",
-        )
+        raise HTTPException(status_code=401, detail="Invalid token type")
 
     user_id = payload.get("sub")
     if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
+        raise HTTPException(status_code=401, detail="Invalid token")
 
-    # ✅ NO DATABASE TOUCH
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
     return {
-        "id": int(user_id),
-        "is_admin": payload.get("is_admin", False),
+        "id": user.id,
+        "is_admin": user.is_admin
     }
-
 
 # =====================================
 # ADMIN GUARD
 # =====================================
 def require_admin(current_user: User = Depends(get_current_user)) -> User:
-    if not current_user.is_admin:
+    if not current_user.get("is_admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",

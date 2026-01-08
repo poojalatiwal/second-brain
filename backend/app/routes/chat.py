@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel,ConfigDict
 from sqlalchemy.orm import Session
 from groq import Groq
 import json, base64
@@ -30,7 +30,7 @@ class ChatSessionOut(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        model_config = ConfigDict(from_attributes=True)
 
 
 # ======================= HELPERS =======================
