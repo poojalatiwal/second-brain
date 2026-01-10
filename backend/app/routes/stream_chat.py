@@ -20,7 +20,8 @@ async def stream_answer(
 
     def generate():
         # (Optional) first chunk can include metadata
-        yield f"[user_id:{current_user["id"] }]\n"
+        yield f"[user_id:{current_user['id']}]\n"
+
 
         stream = client.chat.completions.create(
             model="llama-3.3-70b-versatile",

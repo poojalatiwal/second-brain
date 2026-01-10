@@ -1,4 +1,6 @@
-import axios from "./axiosClient";
+import axiosClient from "./axiosClient";
+
+/* ================= STREAM CHAT ================= */
 
 export const streamChat = async ({
   prompt,
@@ -7,14 +9,21 @@ export const streamChat = async ({
   onDone,
   onSession,
 }) => {
-  const res = await fetch("http://localhost:8000/chat/stream", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: JSON.stringify({ prompt, session_id }),
-  });
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/chat/stream`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ prompt, session_id }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Stream request failed");
+  }
 
   const sid = res.headers.get("X-Session-Id");
   if (sid) onSession?.(Number(sid));
@@ -33,6 +42,7 @@ export const streamChat = async ({
 
     for (const event of events) {
       if (!event.startsWith("data: ")) continue;
+
       const payload = event.replace("data: ", "");
 
       if (payload === "[DONE]") {
@@ -45,16 +55,25 @@ export const streamChat = async ({
   }
 };
 
-export const getChatSessions = () => axios.get("/chat/sessions");
-export const getChatHistory = (id) => axios.get(`/chat/history/${id}`);
+/* ================= CHAT HISTORY ================= */
+
+export const getChatSessions = () =>
+  axiosClient.get("/chat/sessions");
+
+export const getChatHistory = (id) =>
+  axiosClient.get(`/chat/history/${id}`);
 
 
 /* ================= VOICE CHAT ================= */
+
 export const voiceChat = (audioFile) => {
   const fd = new FormData();
   fd.append("file", audioFile);
-  return axios.post("/chat/audio", fd);
+  return axiosClient.post("/chat/audio", fd);
 };
+
+
+/* ================= IMAGE CHAT ================= */
 
 export const imageChat = (file, question, session_id) => {
   const fd = new FormData();
@@ -62,10 +81,11 @@ export const imageChat = (file, question, session_id) => {
   if (question) fd.append("question", question);
   if (session_id) fd.append("session_id", session_id);
 
-  return axios.post("/chat/image", fd, {
-    headers: { "Content-Type": "multipart/form-data" }
-  });
+  return axiosClient.post("/chat/image", fd);
 };
+
+
+/* ================= PDF CHAT ================= */
 
 export const pdfChat = (file, question, session_id) => {
   const fd = new FormData();
@@ -73,7 +93,5 @@ export const pdfChat = (file, question, session_id) => {
   if (question) fd.append("question", question);
   if (session_id) fd.append("session_id", session_id);
 
-  return axios.post("/chat/pdf", fd, {
-    headers: { "Content-Type": "multipart/form-data" }
-  });
+  return axiosClient.post("/chat/pdf", fd);
 };

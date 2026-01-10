@@ -27,6 +27,22 @@ from app.routes.admin import router as admin_router
 # ========= APP =========
 app = FastAPI(title="Second Brain Backend")
 
+# ========= CORS =========
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",   # Vite dev
+        "http://127.0.0.1:5173",
+
+        "http://localhost:3000",   # Docker nginx
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 # ========= SESSION =========
 app.add_middleware(
     SessionMiddleware,
@@ -34,17 +50,6 @@ app.add_middleware(
     same_site="lax",
 )
 
-# ========= CORS =========
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # ========= STARTUP =========
 @app.on_event("startup")

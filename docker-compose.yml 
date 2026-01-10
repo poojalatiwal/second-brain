@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: second-brain-backend
+    restart: always
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend/second-brain-frontend
+    container_name: second-brain-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"

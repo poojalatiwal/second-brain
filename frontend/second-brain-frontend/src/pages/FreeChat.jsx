@@ -116,11 +116,20 @@ export default function FreeChat() {
         />
 
         <div className="chat-main">
-          <div className="chat-box" ref={chatBoxRef}>
-            {messages.map((m, i) => (
-              <ChatBubble key={i} role={m.role} text={m.text} />
-            ))}
-          </div>
+                 <div className="chat-box" ref={chatBoxRef}>
+  {messages.length === 0 ? (
+    <div className="chat-empty">
+      <h2>🤖 Hi, I’m your Second Brain</h2>
+      <p>
+        Start typing, upload a file, or ask me to recall something for you.
+      </p>
+    </div>
+  ) : (
+    messages.map((m, i) => (
+      <ChatBubble key={i} role={m.role} text={m.text} />
+    ))
+  )}
+</div>
 
           <ChatInput onSend={sendMessage} disabled={isStreaming} />
         </div>

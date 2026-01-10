@@ -242,7 +242,7 @@ async def chat_pdf(
         ).first()
 
     if not session:
-        session = ChatSession(user_id=user.id, title=make_title(file.filename))
+        session = ChatSession(user_id=user["id"], title=make_title(file.filename))
         db.add(session)
         db.commit()
         db.refresh(session)

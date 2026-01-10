@@ -1,17 +1,17 @@
-import axios from "./axiosClient";
+import axiosClient from "./axiosClient";
 
 /* Get memory history */
 export const getMemoryHistory = () =>
-  axios.get("/memory/history");
+  axiosClient.get("/memory/history");
 
-// api/memory.js
+/* Ask from memory */
 export const memoryChat = (question) =>
-  axios.post("/brain/memory", { question });
+  axiosClient.post("/brain/memory/", { question }); 
 
 /* Delete memory */
 export const deleteMemory = (id) =>
-  axios.delete(`/memory/${id}`);
+  axiosClient.delete(`/memory/${id}`);
 
 /* Update memory */
 export const updateMemory = (id, text) =>
-  axios.put(`/memory/${id}`, { text });
+  axiosClient.put(`/memory/${id}`, { text });

@@ -116,3 +116,25 @@
   font-size: 0.95rem;
   color: #cbd5f5;
 }
+.chat-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #9aa4b2;
+  text-align: center;
+  padding: 20px;
+}
+
+.chat-empty h2 {
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+  color: #e5e7eb;
+}
+
+.chat-empty p {
+  font-size: 1rem;
+  opacity: 0.8;
+  max-width: 420px;
+}
