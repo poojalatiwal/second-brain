@@ -67,8 +67,7 @@ Then open : http://localhost:3000
 - AI model answers using your personal memory
 - Chat sessions and users are stored in PostgreSQL
 
-
-![Alt text](relative-path-to-image)
+# UI 
 
 ### Login Page
 ![Login](screenshots/login.png)
