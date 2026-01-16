@@ -79,7 +79,7 @@ The **Second Brain** application follows a modular, service-oriented architectur
   Stores embeddings for semantic and hybrid search.
 
 - **Relational Database (PostgreSQL)**  
-  Stores users, chat sessions, messages, and metadata.
+  Stores users, chat sessions, messages
 
 - **AI Layer**  
   Uses Groq / OpenAI APIs for reasoning and responses.
@@ -109,11 +109,13 @@ venv\Scripts\activate         # Windows
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 
-### Frontend
+### Backend
 cd frontend/second-brain-frontend
 npm install
 npm run dev
 
+
+## ▶️ Run with Docker
 
 # Run with Docker
 docker compose down -v
@@ -122,12 +124,7 @@ docker compose up
 
 Then open : http://localhost:3000
 
-# How It Works
-- Files and chats are converted into embeddings
-- Stored in Qdrant vector database
-- Queries use semantic + hybrid search
-- AI model answers using your personal memory
-- Chat sessions and users are stored in PostgreSQL
+---
 
 # UI Screenshots
 
