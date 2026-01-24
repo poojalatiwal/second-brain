@@ -126,19 +126,21 @@ Then open : http://localhost:3000
 
 ---
 
-# UI Screenshots
+<hr style="border: 1px solid white; margin-top: 20px;">
 
-### Login Page
-![Login](screenshots/login.png)
+<h1 style="color:#1E90FF;">UI Screenshots</h1>
 
-### Home Page
-![Home](screenshots/home.png)
+<h3 style="color:#1E90FF;">Login Page</h3>
+<img src="./screenshots/login.png" alt="Login" />
 
-### Chat Interface
-![Chat](screenshots/chat.png)
+<h3 style="color:#1E90FF;">Home Page</h3>
+<img src="./screenshots/home.png" alt="Home" />
 
-### Memory System
-![Memory](screenshots/memory.png)
+<h3 style="color:#1E90FF;">Chat Interface</h3>
+<img src="./screenshots/chat.png" alt="Chat" />
 
-### Admin System
-![Admin](screenshots/admin.png)
+<h3 style="color:#1E90FF;">Memory System</h3>
+<img src="./screenshots/memory.png" alt="Memory" />
+
+<h3 style="color:#1E90FF;">Admin System</h3>
+<img src="./screenshots/admin.png" alt="Admin" />
