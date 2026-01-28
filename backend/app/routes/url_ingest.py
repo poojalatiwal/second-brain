@@ -25,7 +25,7 @@ async def ingest_url(
     if not url:
         raise HTTPException(400, "URL is required")
 
-    # 1️⃣ Fetch page
+
     try:
         res = requests.get(
             url,
@@ -36,7 +36,7 @@ async def ingest_url(
     except Exception as e:
         raise HTTPException(400, f"Failed to fetch URL: {e}")
 
-    # 2️⃣ Parse HTML
+
     soup = BeautifulSoup(res.text, "html.parser")
     title = soup.title.string.strip() if soup.title else "Untitled Page"
 
@@ -49,11 +49,11 @@ async def ingest_url(
     if not text.strip():
         raise HTTPException(400, "No readable text found")
 
-    # 3️⃣ Chunk page text
+
     chunks = chunk_text(text)
     stored_ids = []
 
-    # 🔹 A) Store PAGE SUMMARY vector (VERY IMPORTANT)
+
     summary_text = f"Webpage titled '{title}'. Content discusses: {text[:1500]}"
     summary_id = str(uuid.uuid4())
 
@@ -71,7 +71,7 @@ async def ingest_url(
 
     stored_ids.append(summary_id)
 
-    # 🔹 B) Store detailed chunks
+
     for chunk in chunks:
         uid = str(uuid.uuid4())
         insert_vector(

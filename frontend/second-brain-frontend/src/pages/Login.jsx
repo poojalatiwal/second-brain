@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import googleIcon from "/google.svg";
 import githubIcon from "/github.svg";
 
-/* Eye Icon */
 function EyeIcon({ open }) {
   return open ? (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -24,23 +23,20 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false); // ✅ NEW
+  const [loading, setLoading] = useState(false); 
 
   const navigate = useNavigate();
 
-  // ✅ Google Login
   const googleLogin = () => {
     window.location.href = "http://localhost:8000/auth/google";
   };
 
-  // ✅ GitHub Login
   const githubLogin = () => {
     window.location.href = "http://localhost:8000/auth/github";
   };
 
-  // ✅ FORM SUBMIT HANDLER
   const submit = async (e) => {
-    if (e) e.preventDefault(); // ✅ prevents page reload
+    if (e) e.preventDefault(); 
 
     if (!email || !password) {
       alert("Email and password required");
@@ -48,7 +44,7 @@ export default function Login() {
     }
 
     try {
-      setLoading(true); // ✅ start loading
+      setLoading(true); 
 
       const res = await login({ email, password });
 
@@ -80,13 +76,13 @@ export default function Login() {
     } catch (err) {
       alert("Invalid credentials");
     } finally {
-      setLoading(false); // ✅ stop loading
+      setLoading(false); 
     }
   };
 
   return (
     <div className="auth-page">
-      <form className="auth" onSubmit={submit}> {/* ✅ FORM */}
+      <form className="auth" onSubmit={submit}> 
         <h2>Login</h2>
 
         <input

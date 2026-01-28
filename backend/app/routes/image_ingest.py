@@ -14,19 +14,19 @@ router = APIRouter()
 @router.post("/image")
 async def ingest_image(
     file: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user)  # ✅ AUTH
+    current_user: dict = Depends(get_current_user) 
 ):
     if not file.filename:
         raise HTTPException(400, "No image file provided")
 
     img_bytes = await file.read()
 
-    # Save temporarily
+
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(img_bytes)
         tmp_path = tmp.name
 
-    # Load image into PDF page for OCR
+
     doc = fitz.open()
     page = doc.new_page()
     page.insert_image(page.rect, filename=tmp_path)
@@ -50,7 +50,7 @@ async def ingest_image(
                 "text": chunk,
                 "modality": "image",
                 "filename": file.filename,
-                "user_id": current_user["id"]    # ✅ CRITICAL FIX
+                "user_id": current_user["id"]   
             }
         )
 

@@ -9,9 +9,9 @@ from app.db.qdrant_db import qdrant as qdrant_client
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
-# =========================
-# 1️⃣ GET ALL USERS
-# =========================
+
+#  GET ALL USERS
+
 @router.get("/users")
 def get_users(
     db: Session = Depends(get_db),
@@ -32,14 +32,13 @@ def get_users(
     ]
 
 
-# =========================
-# 2️⃣ SYSTEM LOGS (TEMP)
-# =========================
+
+# 2️ SYSTEM LOGS 
+
 @router.get("/logs")
 def get_logs(curr_user: dict = Depends(get_current_user)):
     require_admin(curr_user)
 
-    # TODO: replace with DB-backed logs later
     return [
         {"event": "User signup", "detail": "test@example.com"},
         {"event": "Memory ingested", "source": "PDF"},
@@ -47,22 +46,20 @@ def get_logs(curr_user: dict = Depends(get_current_user)):
     ]
 
 
-# =========================
-# 3️⃣ SYSTEM STATS
-# =========================
+
+#  SYSTEM STATS
 
 @router.get("/stats")
 def get_admin_stats(
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    # 🔐 Admin check
+
     require_admin(current_user)
 
     total_users = db.query(User).count()
     admin_users = db.query(User).filter(User.is_admin == True).count()
 
-    # Qdrant stats
     try:
         collection = qdrant_client.get_collection("memory")
         total_vectors = collection.points_count or 0
@@ -73,5 +70,5 @@ def get_admin_stats(
         "total_users": total_users,
         "admin_users": admin_users,
         "total_vectors": total_vectors,
-        "estimated_docs": total_vectors // 5  # adjust chunk size later
+        "estimated_docs": total_vectors // 5  
     }

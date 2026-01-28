@@ -22,7 +22,6 @@ export default function ChatInput({ onSend, disabled = false }) {
   const submit = () => {
     if (disabled) return;
 
-    // ✅ allow file-only OR text-only OR both
     if (!text.trim() && !file) return;
 
     onSend({ text, file });

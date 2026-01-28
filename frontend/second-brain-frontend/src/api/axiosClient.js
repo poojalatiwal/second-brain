@@ -5,7 +5,7 @@ const axiosClient = axios.create({
   withCredentials: false,
 });
 
-// ================= REQUEST =================
+// REQUEST 
 axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -17,7 +17,7 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ================= RESPONSE =================
+// RESPONSE
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -36,7 +36,6 @@ axiosClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 
 export const imageChat = (file) => {
   const form = new FormData();

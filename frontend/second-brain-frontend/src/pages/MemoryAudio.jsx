@@ -28,7 +28,7 @@ export default function MemoryAudio() {
     <div className="panel">
       <h2>🎧 Add Audio to Memory</h2>
 
-      {/* Styled file input (same as PDF & Image) */}
+
       <input
         type="file"
         accept="audio/*"
@@ -36,7 +36,7 @@ export default function MemoryAudio() {
         onChange={(e) => setFile(e.target.files[0])}
       />
 
-      {/* Subtle filename preview */}
+
       {file && (
         <p
           style={{
@@ -49,7 +49,7 @@ export default function MemoryAudio() {
         </p>
       )}
 
-      {/* Styled upload button */}
+
       <button
         className="upload-btn"
         onClick={uploadAudio}

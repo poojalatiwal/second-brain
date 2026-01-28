@@ -1,8 +1,5 @@
 import axiosClient from "./axiosClient";
 
-/* Get memory history */
-export const getMemoryHistory = () =>
-  axiosClient.get("/memory/history");
 
 /* Ask from memory */
 export const memoryChat = (question) =>
@@ -15,3 +12,7 @@ export const deleteMemory = (id) =>
 /* Update memory */
 export const updateMemory = (id, text) =>
   axiosClient.put(`/memory/${id}`, { text });
+
+export const getMemoryHistory = () =>
+axiosClient.get("/memory/history")
+

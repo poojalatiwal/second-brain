@@ -16,7 +16,7 @@ client = Groq(api_key=settings.GROQ_API_KEY)
 @router.post("/audio")
 async def chat_with_audio(
     file: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user) # ✅ AUTH
+    current_user: dict = Depends(get_current_user) 
 ):
     """
     Conversational audio → text → memory-aware response
@@ -25,10 +25,10 @@ async def chat_with_audio(
     if not file.filename:
         raise HTTPException(400, "No audio file provided")
 
-    # 1️⃣ Read uploaded audio bytes
+
     audio_bytes = await file.read()
 
-    # 2️⃣ Groq Whisper transcription
+
     transcript = client.audio.transcriptions.create(
         model="whisper-large-v3-turbo",
         file=(file.filename, audio_bytes),
@@ -38,16 +38,16 @@ async def chat_with_audio(
     if not user_text:
         raise HTTPException(400, "Could not transcribe audio")
 
-    # 3️⃣ Embed + search ONLY THIS USER'S MEMORY
+
     emb = get_embedding(user_text)
 
     results = search_vectors(
         vector=emb,
-        user_id=current_user["id"] ,     # ✅ CRITICAL FIX
+        user_id=current_user["id"] ,    
         top_k=5
     )
 
-    # 4️⃣ Extract memory context
+
     context_list = [
         point.payload.get("text", "")
         for point in results
@@ -56,7 +56,7 @@ async def chat_with_audio(
 
     context = "\n".join(context_list) if context_list else ""
 
-    # 5️⃣ Build final LLM prompt
+
     prompt = f"""
 You are the user's AI assistant.
 
@@ -70,7 +70,7 @@ User (from audio): {user_text}
 Respond naturally.
 """
 
-    # 6️⃣ Ask Groq LLM
+
     reply = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}]

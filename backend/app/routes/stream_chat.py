@@ -13,13 +13,13 @@ client = Groq(api_key=settings.GROQ_API_KEY)
 @router.post("/")
 async def stream_answer(
     prompt: str,
-    current_user: dict = Depends(get_current_user)  # ✅ AUTH
+    current_user: dict = Depends(get_current_user) 
 ):
     if not prompt.strip():
         raise HTTPException(400, "Prompt cannot be empty")
 
     def generate():
-        # (Optional) first chunk can include metadata
+
         yield f"[user_id:{current_user['id']}]\n"
 
 

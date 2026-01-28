@@ -109,7 +109,7 @@ venv\Scripts\activate         # Windows
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 
-### Backend
+### Frontend
 cd frontend/second-brain-frontend
 npm install
 npm run dev
@@ -123,7 +123,7 @@ docker compose build --no-cache
 docker compose up
 
 Then open : http://localhost:3000
-
+```
 ---
 
 <hr style="border: 1px solid white; margin-top: 20px;">

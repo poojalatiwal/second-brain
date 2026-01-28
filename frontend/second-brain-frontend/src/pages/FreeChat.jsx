@@ -12,14 +12,12 @@ export default function FreeChat() {
   const [isStreaming, setIsStreaming] = useState(false);
   const chatBoxRef = useRef(null);
 
-  /* ================= AUTO SCROLL ================= */
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, [messages]);
 
-  /* ================= LOAD HISTORY ================= */
   useEffect(() => {
     if (!sessionId) return;
 
@@ -35,18 +33,15 @@ export default function FreeChat() {
       .catch(console.error);
   }, [sessionId]);
 
-  /* ================= SEND MESSAGE ================= */
   const sendMessage = async ({ text, file }) => {
     if (isStreaming) return;
     setIsStreaming(true);
 
-    // show user message (only if text exists)
     if (text?.trim()) {
       setMessages((prev) => [...prev, { role: "user", text }]);
     }
 
     try {
-      /* ========== FILE MODE ========== */
       if (file instanceof File) {
         let res;
 
@@ -58,13 +53,11 @@ export default function FreeChat() {
           throw new Error("Unsupported file");
         }
 
-        // AI response
         setMessages((prev) => [
           ...prev,
           { role: "ai", text: res.data.answer },
         ]);
 
-        // 🔒 create session ONCE
         if (!sessionId && res.data.session_id) {
           setSessionId(res.data.session_id);
         }
@@ -72,7 +65,7 @@ export default function FreeChat() {
         return;
       }
 
-      /* ========== TEXT CHAT (NORMAL) ========== */
+
       setMessages((prev) => [...prev, { role: "ai", text: "" }]);
 
       await streamChat({

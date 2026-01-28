@@ -14,18 +14,17 @@ router = APIRouter()
 @router.post("/pdf")
 async def ingest_pdf(
     file: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user)  # ✅ AUTH
+    current_user: dict = Depends(get_current_user) 
 ):
     if not file.filename:
         raise HTTPException(400, "No PDF file provided")
 
-    # 1️⃣ Read PDF bytes
     pdf_bytes = await file.read()
 
-    # 2️⃣ Load PDF
+
     reader = PdfReader(BytesIO(pdf_bytes))
 
-    # 3️⃣ Extract text
+
     full_text = ""
     for page in reader.pages:
         text = page.extract_text()
@@ -35,12 +34,12 @@ async def ingest_pdf(
     if not full_text.strip():
         raise HTTPException(400, "Could not extract text from PDF")
 
-    # 4️⃣ Chunk text
+
     chunks = chunk_text(full_text)
 
     stored_ids = []
 
-    # 5️⃣ Embed + store WITH user_id
+
     for chunk in chunks:
         emb = get_embedding(chunk)
         uid = str(uuid.uuid4())
@@ -52,7 +51,7 @@ async def ingest_pdf(
                 "text": chunk,
                 "modality": "pdf",
                 "filename": file.filename,
-                "user_id": current_user["id"]   # ✅ CRITICAL FIX
+                "user_id": current_user["id"]  
             }
         )
 

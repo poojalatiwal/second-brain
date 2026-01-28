@@ -4,12 +4,12 @@ from app.services.embedder import get_embedding
 from app.db.qdrant_db import qdrant
 from app.auth.utils import get_current_user
 
-# ✅ IMPORTANT: MatchText MUST be imported
+
 from qdrant_client.models import (
     Filter,
     FieldCondition,
     MatchValue,
-    MatchText,   # 🔥 THIS WAS MISSING
+    MatchText,  
 )
 
 router = APIRouter(prefix="/hybrid-search", tags=["Hybrid Search"])
@@ -26,9 +26,7 @@ async def hybrid_search(
 
     user_id = current_user["id"]
 
-    # --------------------------------------------------
-    # USER FILTER
-    # --------------------------------------------------
+
     user_filter = Filter(
         must=[
             FieldCondition(
@@ -38,9 +36,9 @@ async def hybrid_search(
         ]
     )
 
-    # --------------------------------------------------
-    # 1️⃣ SEMANTIC SEARCH (VECTOR SEARCH)
-    # --------------------------------------------------
+
+    # SEMANTIC SEARCH (VECTOR SEARCH)
+
     embedding = get_embedding(query)
 
     semantic_result = qdrant.query_points(
@@ -49,7 +47,7 @@ async def hybrid_search(
         query_filter=user_filter,
         limit=5,
         with_payload=True,
-        timeout=10,   # ✅ cloud-safe
+        timeout=10,  
     )
 
     semantic_hits = [
@@ -62,14 +60,12 @@ async def hybrid_search(
         if p.payload
     ]
 
-    # --------------------------------------------------
-    # 2️⃣ KEYWORD SEARCH (TEXT INDEX)
-    # --------------------------------------------------
+
     keyword_filter = Filter(
         must=[
             FieldCondition(
                 key="text",
-                match=MatchText(text=query),   # ✅ NOW WORKS
+                match=MatchText(text=query),  
             ),
             FieldCondition(
                 key="user_id",
@@ -96,9 +92,7 @@ async def hybrid_search(
         if p.payload
     ]
 
-    # --------------------------------------------------
-    # 3️⃣ MERGE + DEDUPLICATE
-    # --------------------------------------------------
+
     seen = set()
     combined = []
 

@@ -109,4 +109,4 @@ def search_vectors(vector: list, user_id: int, top_k: int = 5):
         except Exception as e:
             if attempt == 1:
                 raise
-            time.sleep(1)  # wait 1s and retry
+            time.sleep(1)  

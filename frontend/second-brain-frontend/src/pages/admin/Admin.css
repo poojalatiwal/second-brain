@@ -1,14 +1,11 @@
-
-
-/* ========== CONTENT ========== */
 .admin-content {
   flex: 1;
   padding: 32px;
   width: 100%;
-  max-width: 1200px;   /* 👈 THIS IS KEY */
-  margin: 0 auto;     /* center content */
+  max-width: 1200px;   
+  margin: 0 auto;   
 }
-/* ========== DASHBOARD BOXES ========== */
+
 .admin-section {
   background: #020617;
   border: 1px solid #1e293b;
@@ -17,8 +14,6 @@
   margin-bottom: 24px;
 }
 
-
-/* ========== TABLE ========== */
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -38,7 +33,6 @@
   border-bottom: 1px solid #1e293b;
 }
 
-/* ========== LOGS ========== */
 .logs .log-item {
   padding: 12px;
   border-left: 3px solid #3b82f6;
@@ -48,7 +42,6 @@
   font-size: 14px;
 }
 
-/* ========== LAYOUT ========== */
 .admin-layout {
   min-height: 100vh;
   width: 100%;
@@ -64,7 +57,7 @@
   padding: 24px;
 }
 
-/* ========== NAVBAR ========== */
+
 .admin-navbar {
   height: 80px;
   padding: 0 24px;
@@ -96,8 +89,6 @@
   color: #fecaca;
 }
 
-
-/* ========== HEADER CARD ========== */
 .admin-header-card {
   background: #020617;
   border: 1px solid #1e293b;
@@ -106,7 +97,6 @@
   margin-bottom: 24px;
 }
 
-/* ========== STATS GRID ========== */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -125,7 +115,6 @@
   font-weight: 700;
 }
 
-/* ========== HOVER LIFT EFFECT ========== */
 .hover-card {
   transition: all 0.25s ease;
   cursor: pointer;
@@ -137,14 +126,12 @@
   border-color: #3b82f6;
 }
 
-/* ========== LOGS ========== */
 .logs .log-item {
   padding: 12px;
   border-left: 3px solid #3b82f6;
   margin-bottom: 12px;
 }
 
-/* ========== MUTED TEXT ========== */
 .muted {
   color: #94a3b8;
 }

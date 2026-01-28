@@ -9,7 +9,7 @@ from app.auth.utils import get_current_user
 from app.auth.models import User
 from app.config import settings
 
-# ✅ THIS WAS MISSING
+
 router = APIRouter()
 
 client = Groq(api_key=settings.GROQ_API_KEY)
@@ -25,7 +25,7 @@ async def ingest_audio(
 
     audio_bytes = await file.read()
 
-    # 1️⃣ Transcribe audio
+
     transcript = client.audio.transcriptions.create(
         model="whisper-large-v3-turbo",
         file=(file.filename, audio_bytes),
@@ -35,7 +35,7 @@ async def ingest_audio(
     if not text:
         raise HTTPException(400, "Audio transcription failed")
 
-    # 2️⃣ CREATE SUMMARY (IMPORTANT)
+
     summary_prompt = f"""
 Summarize the following audio transcription in 3–5 bullet points.
 
@@ -50,7 +50,6 @@ Transcript:
 
     summary = summary_resp.choices[0].message.content.strip()
 
-    # 3️⃣ Store SUMMARY
     insert_vector(
         id=str(uuid.uuid4()),
         embedding=get_embedding(summary),
@@ -62,7 +61,7 @@ Transcript:
         }
     )
 
-    # 4️⃣ Store FULL TRANSCRIPT (chunked)
+
     for chunk in chunk_text(text):
         insert_vector(
             id=str(uuid.uuid4()),

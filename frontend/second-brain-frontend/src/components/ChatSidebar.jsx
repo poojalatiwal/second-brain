@@ -11,24 +11,35 @@ export default function ChatSidebar({
 
   useEffect(() => {
     getChatSessions()
-      .then((res) => setSessions(res.data))
+      .then((res) => {
+        const data = res.data;
+
+        if (Array.isArray(data)) {
+          setSessions(data);
+        } else if (Array.isArray(data.sessions)) {
+          setSessions(data.sessions);
+        } else {
+          setSessions([]);
+        }
+      })
       .catch(console.error);
-  }, [refreshKey]); // 🔥 RELOAD WHEN refreshKey CHANGES
+  }, [refreshKey]);
 
   return (
     <div className="chat-sidebar">
       <button onClick={onNewChat}>+ New Chat</button>
 
       <div className="chat-history">
-        {sessions.map((s) => (
-          <div
-  key={s.id}
-  className={`chat-item ${s.id === sessionId ? "active" : ""}`}
-  onClick={() => onSelectSession(s.id)}
->
-  {s.title}
-</div>
-        ))}
+        {Array.isArray(sessions) &&
+          sessions.map((s) => (
+            <div
+              key={s.id}
+              className={`chat-item ${s.id === sessionId ? "active" : ""}`}
+              onClick={() => onSelectSession(s.id)}
+            >
+              {s.title}
+            </div>
+          ))}
       </div>
     </div>
   );
