@@ -8,8 +8,6 @@ from app.db.qdrant_db import qdrant as qdrant_client
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
-
-
 #  GET ALL USERS
 
 @router.get("/users")
@@ -31,8 +29,6 @@ def get_users(
         for u in users
     ]
 
-
-
 # 2️ SYSTEM LOGS 
 
 @router.get("/logs")
@@ -44,8 +40,6 @@ def get_logs(curr_user: dict = Depends(get_current_user)):
         {"event": "Memory ingested", "source": "PDF"},
         {"event": "Chat request", "mode": "memory"},
     ]
-
-
 
 #  SYSTEM STATS
 

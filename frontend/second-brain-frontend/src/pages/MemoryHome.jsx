@@ -15,24 +15,24 @@ import "./MemoryHome.css";
 export default function MemoryHome() {
   const navigate = useNavigate();
 
-  /* ================= ASK / EDIT ================= */
+  // ASK / EDIT 
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loadingAsk, setLoadingAsk] = useState(false);
   const [editingMemory, setEditingMemory] = useState(null);
 
-  /* ================= SEARCH ================= */
+  // SEARCH 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [loadingSearch, setLoadingSearch] = useState(false);
 
-  /* ================= HISTORY ================= */
+  //HISTORY 
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
 
-  /* ================= LOAD HISTORY ================= */
+  //LOAD HISTORY 
   useEffect(() => {
     loadHistory();
   }, []);
@@ -49,7 +49,7 @@ export default function MemoryHome() {
     }
   };
 
-  /* ================= SIDEBAR ACTIONS ================= */
+  // SIDEBAR ACTION
   const newChat = () => {
     setQuestion("");
     setAnswer("");
@@ -90,7 +90,7 @@ export default function MemoryHome() {
     }
   };
 
-  /* ================= ASK / UPDATE ================= */
+  // ASK / UPDATE 
   const askOrUpdate = async () => {
     if (!question.trim()) return;
 
@@ -120,7 +120,7 @@ export default function MemoryHome() {
     }
   };
 
-  /* ================= SEARCH ================= */
+  //SEARCH
   const searchMemory = async () => {
     if (!searchQuery.trim()) return;
 
@@ -140,7 +140,7 @@ export default function MemoryHome() {
       <Navbar />
 
       <div className="memory-layout">
-        {/* ========== LEFT SIDEBAR ========== */}
+        {/* LEFT SIDEBAR*/}
         <aside className="memory-sidebar">
           <button className="new-chat-btn" onClick={newChat}>
             ＋ New Chat
@@ -196,7 +196,7 @@ export default function MemoryHome() {
           </div>
         </aside>
 
-        {/* ========== RIGHT PANEL ========== */}
+        {/* RIGHT PANEL  */}
         <main className="memory-main">
           {selectedMemory && (
             <div className="panel memory-viewer">
@@ -208,7 +208,6 @@ export default function MemoryHome() {
             </div>
           )}
 
-          {/* ===== ASK / EDIT ===== */}
           <div className="panel">
             <h2>{editingMemory ? "✏️ Edit Memory" : "🧠 Ask from Memory"}</h2>
 
@@ -242,7 +241,7 @@ export default function MemoryHome() {
             )}
           </div>
 
-          {/* ===== SEARCH ===== */}
+
           <div className="panel">
             <h2>🔍 Search Memory</h2>
 
@@ -281,7 +280,7 @@ export default function MemoryHome() {
             )}
           </div>
 
-          {/* ===== ADD ===== */}
+
           <h3 className="section-title">➕ Add to Memory</h3>
 
           <div className="add-memory-grid">

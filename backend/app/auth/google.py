@@ -20,13 +20,13 @@ oauth.register(
     client_kwargs={"scope": "openid email profile"},
 )
 
-# STEP 1: Redirect to Google
+# Google
 @router.get("/google")
 async def google_login(request: Request):
     redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
-# STEP 2: Google callback
+#  Google callback
 @router.get("/google/callback")
 async def google_callback(
     request: Request,
@@ -47,7 +47,7 @@ async def google_callback(
         user = User(
             email=email,
             username=name,
-            password_hash=None,  # OAuth users
+            password_hash=None,  
         )
         db.add(user)
         db.commit()

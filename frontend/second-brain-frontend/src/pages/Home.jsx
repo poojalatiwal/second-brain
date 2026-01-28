@@ -12,7 +12,6 @@ export default function Home() {
 
   return (
     <div className="home-container">
-      {/* ===== TOP NAVBAR ===== */}
       <header className="topbar">
         <div className="brand">
           🧠 <span>SecondBrain AI</span>
@@ -26,16 +25,13 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ===== MAIN ===== */}
       <main className="home-main">
         <h1>Welcome to SecondBrain AI</h1>
         <p className="subtitle">
           Your personal AI assistant that remembers your knowledge.
         </p>
 
-        {/* ===== MODE SELECTOR ===== */}
         <div className="mode-container">
-          {/* ✅ FIX HERE */}
           <div
             className="mode-card"
             onClick={() => navigate("/memory")}

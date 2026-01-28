@@ -2,7 +2,6 @@ import { useState } from "react";
 import { signup } from "../api/auth";
 import { Link, useNavigate } from "react-router-dom";
 
-/* Eye Icon */
 function EyeIcon({ open }) {
   return open ? (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -40,7 +39,6 @@ export default function Signup() {
       await signup({ username, email, password });
       setSuccess(true);
 
-      // auto redirect after 2 seconds
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       alert("Signup failed");

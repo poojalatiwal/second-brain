@@ -28,7 +28,7 @@ export default function MemoryImage() {
     <div className="panel">
       <h2>🖼️ Add Image to Memory</h2>
 
-      {/* Upload section (same as PDF) */}
+
       <input
         type="file"
         accept="image/*"
@@ -36,7 +36,7 @@ export default function MemoryImage() {
         onChange={(e) => setFile(e.target.files[0])}
       />
 
-      {/* Upload button */}
+
       <button
         className="upload-btn"
         onClick={uploadImage}

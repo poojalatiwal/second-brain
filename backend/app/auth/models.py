@@ -13,7 +13,7 @@ from datetime import datetime
 from app.db.postgree import Base
 
 
-# ================= USERS =================
+# USERS
 class User(Base):
     __tablename__ = "users"
 
@@ -31,7 +31,7 @@ class User(Base):
     )
 
 
-# ================= CHAT SESSIONS =================
+# CHAT SESSIONS
 class ChatSession(Base):
     __tablename__ = "chat_sessions"
 
@@ -40,9 +40,9 @@ class ChatSession(Base):
     title = Column(String, default="New Chat")
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
-    # 🔥 CONTEXT MEMORY (ChatGPT-like behavior)
+
     active_context = Column(Text, nullable=True)
-    context_type = Column(String, nullable=True)  # text | image | pdf
+    context_type = Column(String, nullable=True)  
 
     user = relationship("User", back_populates="sessions")
     messages = relationship(
@@ -51,8 +51,7 @@ class ChatSession(Base):
         cascade="all, delete"
     )
 
-
-# ================= CHAT MESSAGES =================
+#CHAT MESSAGES
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
@@ -63,21 +62,21 @@ class ChatMessage(Base):
         index=True
     )
 
-    role = Column(String, nullable=False)        # user | ai
-    modality = Column(String, nullable=False)    # text | audio | image | pdf
+    role = Column(String, nullable=False)        
+    modality = Column(String, nullable=False)   
     content = Column(Text, nullable=False)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     session = relationship("ChatSession", back_populates="messages")
 
 
-# ================= MEMORY METADATA =================
+#MEMORY METADATA
 class Memory(Base):
     __tablename__ = "memories"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     modality = Column(String, nullable=False)
-    source = Column(String)          # filename / url
+    source = Column(String)        
     preview = Column(String(500))
     created_at = Column(TIMESTAMP, default=datetime.utcnow)

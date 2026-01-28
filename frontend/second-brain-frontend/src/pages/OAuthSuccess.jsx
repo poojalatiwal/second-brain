@@ -10,8 +10,6 @@ export default function OAuthSuccess() {
 
     if (token) {
       localStorage.setItem("token", token);
-
-      // 🔥 IMPORTANT: delay helps React routing
       setTimeout(() => {
         navigate("/", { replace: true });
       }, 100);

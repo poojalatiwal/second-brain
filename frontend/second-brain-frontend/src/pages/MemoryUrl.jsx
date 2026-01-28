@@ -28,7 +28,6 @@ export default function MemoryUrl() {
     <div className="panel">
       <h2>🌐 Add Website to Memory</h2>
 
-      {/* URL input styled like file-input */}
       <input
         type="url"
         placeholder="https://example.com"
@@ -37,7 +36,6 @@ export default function MemoryUrl() {
         className="file-input"
       />
 
-      {/* Upload button */}
       <button
         className="upload-btn"
         onClick={uploadUrl}

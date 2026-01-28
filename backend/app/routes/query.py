@@ -1,3 +1,4 @@
+
 import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -63,7 +64,6 @@ Rules:
 
     answer = response.choices[0].message.content.strip()
 
-    # ✅ SAVE CHAT TO MEMORY HISTORY
     insert_vector(
         id=str(uuid.uuid4()),
         embedding=get_embedding(f"{question} {answer}"),

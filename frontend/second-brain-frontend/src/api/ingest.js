@@ -1,12 +1,12 @@
 import axiosClient from "./axiosClient";
 
-/* ================= TEXT ================= */
+// TEXT
 export const ingestText = (text) =>
   axiosClient.post("/ingest/text", null, {
     params: { text },
   });
 
-/* ================= PDF ================= */
+//PDF
 export const ingestPdf = (file) => {
   const formData = new FormData();
   formData.append("file", file);
@@ -14,7 +14,7 @@ export const ingestPdf = (file) => {
   return axiosClient.post("/ingest/pdf", formData);
 };
 
-/* ================= IMAGE ================= */
+// IMAGE
 export const ingestImage = (file) => {
   const formData = new FormData();
   formData.append("file", file);
@@ -22,7 +22,7 @@ export const ingestImage = (file) => {
   return axiosClient.post("/ingest/image", formData);
 };
 
-/* ================= AUDIO ================= */
+// AUDIO 
 export const ingestAudio = (file) => {
   const formData = new FormData();
   formData.append("file", file);
@@ -30,7 +30,7 @@ export const ingestAudio = (file) => {
   return axiosClient.post("/ingest/audio", formData);
 };
 
-/* ================= URL ================= */
+// URL 
 export const ingestUrl = (url) =>
   axiosClient.post("/ingest/url", null, {
     params: { url },

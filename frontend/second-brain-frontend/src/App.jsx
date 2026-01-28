@@ -16,7 +16,7 @@ import OAuthSuccess from "./pages/OAuthSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import AdminRoute from "./components/AdminRoute";
-import AdminLayout from "./pages/admin/AdminLayout"; // ✅ REQUIRED
+import AdminLayout from "./pages/admin/AdminLayout"; 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminLogs from "./pages/admin/AdminLogs";
@@ -25,15 +25,11 @@ import AdminStats from "./pages/admin/AdminStats";
 export default function App() {
   return (
     <Routes>
-      {/* ================= PUBLIC ================= */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/oauth-success" element={<OAuthSuccess />} />
 
-      {/* ================= USER AREA ================= */}
-      <Route
-        path="/"
-        element={
+      <Route path="/" element={
           <ProtectedRoute>
             <Home />
           </ProtectedRoute>
@@ -49,7 +45,7 @@ export default function App() {
         }
       />
 
-      {/* ================= MEMORY ================= */}
+
       <Route
         path="/memory"
         element={
@@ -66,7 +62,6 @@ export default function App() {
         <Route path="audio" element={<MemoryAudio />} />
       </Route>
 
-      {/* ================= ADMIN AREA ================= */}
       <Route path="/admin" element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
@@ -76,7 +71,6 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* ================= FALLBACKS ================= */}
       <Route path="/memory-home" element={<Navigate to="/memory" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

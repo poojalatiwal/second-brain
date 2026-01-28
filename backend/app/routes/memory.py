@@ -19,7 +19,6 @@ from app.auth.models import ChatSession, ChatMessage, User
 router = APIRouter(tags=["Memory"]) 
 groq = Groq(api_key=settings.GROQ_API_KEY)
 
-# ======================= MODELS =======================
 
 class TextChat(BaseModel):
     prompt: str
@@ -35,13 +34,11 @@ class ChatSessionOut(BaseModel):
         model_config = ConfigDict(from_attributes=True)
 
 
-# ======================= HELPERS =======================
 
 def make_title(text: str) -> str:
     return text.strip()[:60] if text and len(text.strip()) > 5 else "Conversation"
 
 
-# ======================= STREAMING =======================
 def stream_llm(prompt: str, session: ChatSession, db: Session):
     full_answer = ""
 
@@ -88,7 +85,7 @@ Formatting Rules:
 
 
 
-# ======================= TEXT CHAT =======================
+# TEXT CHAT 
 
 @router.post("/stream")
 def chat_stream(
@@ -114,7 +111,6 @@ def chat_stream(
         db.commit()
         db.refresh(session)
 
-    # 🔥 SMART CONTEXT INJECTION (NOT STRICT)
     prompt = f"""
 Answer the following question in a structured format.
 
@@ -155,7 +151,7 @@ User Question:
     )
 
 
-# ======================= IMAGE CHAT =======================
+#IMAGE CHAT 
 
 @router.post("/image")
 async def chat_image(
@@ -202,7 +198,6 @@ async def chat_image(
 
     answer = res.choices[0].message.content
 
-    # ✅ STORE IMAGE CONTEXT
     session.active_context = answer
     session.context_type = "image"
     db.commit()
@@ -216,7 +211,7 @@ async def chat_image(
     return {"answer": answer, "session_id": session.id}
 
 
-# ======================= PDF CHAT =======================
+#PDF CHAT 
 
 @router.post("/pdf")
 async def chat_pdf(
@@ -266,7 +261,6 @@ User Question:
 
     answer = res.choices[0].message.content
 
-    # ✅ STORE DOCUMENT CONTEXT
     session.active_context = full_text
     session.context_type = "pdf"
     db.commit()
@@ -280,7 +274,7 @@ User Question:
     return {"answer": answer, "session_id": session.id}
 
 
-# ======================= SESSION LIST =======================
+# SESSION LIST
 
 @router.get("/sessions", response_model=List[ChatSessionOut])
 def list_sessions(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
@@ -325,7 +319,6 @@ async def memory_history(
         if p.payload
     ]
 
-    # ✅ Sort newest first
     items.sort(key=lambda x: x["created_at"] or "", reverse=True)
 
     return {"items": items}

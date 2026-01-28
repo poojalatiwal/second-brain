@@ -13,11 +13,10 @@ from .utils import (
 
 router = APIRouter(prefix="/auth")
 
-# -------------------- SIGNUP --------------------
+# SIGNUP
 @router.post("/signup", response_model=UserResponse)
 def signup(data: SignupRequest, db: Session = Depends(get_db)):
 
-    # email already exists
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already exists")
@@ -40,7 +39,7 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
         refresh_token=create_refresh_token(user.id)
     )
 
-# -------------------- LOGIN --------------------
+# LOGIN 
 @router.post("/login", response_model=UserResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
 

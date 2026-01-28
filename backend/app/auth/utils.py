@@ -10,9 +10,7 @@ from argon2.exceptions import VerifyMismatchError
 from app.config import settings
 from .models import User
 
-# =====================================
 # PASSWORD HASHING (ARGON2)
-# =====================================
 pwd_hasher = PasswordHasher()
 
 def hash_password(password: str) -> str:
@@ -23,10 +21,6 @@ def verify_password(password: str, hashed: str) -> bool:
         return pwd_hasher.verify(hashed, password)
     except VerifyMismatchError:
         return False
-
-# =====================================
-# JWT CONFIG
-# =====================================
 security = HTTPBearer()
 
 def create_access_token(user_id: int) -> str:
@@ -62,9 +56,6 @@ def decode_token(token: str) -> dict:
             detail="Session expired. Please login again.",
         )
 
-# =====================================
-# GET CURRENT USER
-# =====================================
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -90,9 +81,6 @@ def get_current_user(
         "is_admin": user.is_admin
     }
 
-# =====================================
-# ADMIN GUARD
-# =====================================
 def require_admin(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.get("is_admin"):
         raise HTTPException(

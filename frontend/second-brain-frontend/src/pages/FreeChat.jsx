@@ -70,7 +70,7 @@ export default function FreeChat() {
 
       await streamChat({
         prompt: text,
-        session_id: sessionId, // ✅ ALWAYS reuse session
+        session_id: sessionId, 
         onSession: (id) => {
           if (!sessionId) setSessionId(id);
         },
@@ -87,7 +87,7 @@ export default function FreeChat() {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: "❌ Error processing request" },
+        { role: "ai", text: " Error processing request" },
       ]);
     } finally {
       setIsStreaming(false);

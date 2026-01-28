@@ -34,8 +34,8 @@ export default function MemoryPdf() {
         accept="application/pdf"
         onChange={(e) => {
           const selectedFile = e.target.files[0];
-          console.log("Selected PDF:", selectedFile); // ✅ DEBUG
-          setFile(selectedFile); // ✅ THIS WAS MISSING
+          console.log("Selected PDF:", selectedFile); 
+          setFile(selectedFile);
         }}
       />
 

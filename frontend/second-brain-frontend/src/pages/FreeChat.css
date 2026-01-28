@@ -165,16 +165,14 @@
 .chat-row.ai {
   justify-content: flex-start;
 }
-
 .chat-bubble {
-  max-width: 70%;
-  padding: 14px 16px;
-  border-radius: 14px;
-  line-height: 1.6;
-  font-size: 15px;
+  max-width: 85%;
+  padding: 22px 26px;      /* ⬅ more space inside */
+  border-radius: 16px;
+  line-height: 1.75;      /* ⬅ better readability */
+  font-size: 16px;        /* ⬅ slightly bigger text */
   word-wrap: break-word;
 }
-
 .chat-row.user .chat-bubble {
   background: #1e293b;
   border-top-right-radius: 4px;
@@ -184,6 +182,8 @@
   background: #020617;
   border: 1px solid #1e293b;
   border-top-left-radius: 4px;
+   max-height: 75vh;       /* ⬅ BIG visible area */
+  overflow-y: auto;
 }
 
 .chat-role {

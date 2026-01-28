@@ -8,8 +8,6 @@ from app.auth.utils import get_current_user
 from app.auth.models import User
 
 router = APIRouter()
-
-# Initialize Groq Client
 client = Groq(api_key=settings.GROQ_API_KEY)
 
 

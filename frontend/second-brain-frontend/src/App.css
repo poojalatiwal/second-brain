@@ -1,4 +1,4 @@
-/* ===== GLOBAL BASE ===== */
+
 * {
   box-sizing: border-box;
 }
@@ -14,13 +14,11 @@ body,
   font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-/* Prevent content hiding behind navbar */
 body {
   padding-top: 64px;
 }
-/* ===== NAVBAR ===== */
 .navbar {
-  position: fixed;          /* 🔥 always stays visible */
+  position: fixed;          
   top: 0;
   left: 0;
   width: 100%;
@@ -38,7 +36,6 @@ body {
   z-index: 9999;
 }
 
-/* BRAND */
 .navbar h2 {
   margin: 0;
   color: #f8fafc;
@@ -46,13 +43,12 @@ body {
   font-weight: 600;
 }
 
-/* RIGHT SIDE ACTIONS */
 .nav-actions {
   display: flex;
   gap: 12px;
 }
 
-/* BUTTONS */
+
 .nav-actions button {
   padding: 8px 16px;
   border-radius: 10px;
@@ -70,7 +66,6 @@ body {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* LOGOUT BUTTON */
 .nav-actions .logout {
   background: rgba(239, 68, 68, 0.25);
   color: #fee2e2;
@@ -83,7 +78,6 @@ body {
 .home-container {
   min-height: calc(100vh - 64px);
 }
-/* ================= DEFAULT (DARK) ================= */
 :root {
   --bg-main: radial-gradient(circle at top, #0f172a, #020617);
   --bg-navbar: linear-gradient(180deg, #020617, #020617);
@@ -96,7 +90,6 @@ body {
   --accent: #3b82f6;
 }
 
-/* ================= LIGHT THEME ================= */
 [data-theme="light"] {
   --bg-main: linear-gradient(180deg, #f8fafc, #e5e7eb);
   --bg-navbar: linear-gradient(180deg, #ffffff, #f1f5f9);

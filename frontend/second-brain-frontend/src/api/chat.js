@@ -55,7 +55,7 @@ export const streamChat = async ({
   }
 };
 
-/* ================= CHAT HISTORY ================= */
+//CHAT HISTORY 
 
 export const getChatSessions = () =>
   axiosClient.get("/chat/sessions");
@@ -64,7 +64,7 @@ export const getChatHistory = (id) =>
   axiosClient.get(`/chat/history/${id}`);
 
 
-/* ================= VOICE CHAT ================= */
+// VOICE CHAT 
 
 export const voiceChat = (audioFile) => {
   const fd = new FormData();
@@ -73,7 +73,7 @@ export const voiceChat = (audioFile) => {
 };
 
 
-/* ================= IMAGE CHAT ================= */
+//IMAGE CHAT 
 
 export const imageChat = (file, question, session_id) => {
   const fd = new FormData();
@@ -85,7 +85,7 @@ export const imageChat = (file, question, session_id) => {
 };
 
 
-/* ================= PDF CHAT ================= */
+//PDF CHAT 
 
 export const pdfChat = (file, question, session_id) => {
   const fd = new FormData();

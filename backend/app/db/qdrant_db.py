@@ -3,14 +3,11 @@ from qdrant_client.models import (
     Filter,
     FieldCondition,
     MatchValue,
-    MatchText,   # ✅ ADD THIS
+    MatchText
 )
 from app.config import settings
 from datetime import datetime
 import time
-# ------------------------------------------------------
-# QDRANT CLIENT
-# ------------------------------------------------------
 
 qdrant = QdrantClient(
     url=settings.QDRANT_URL,
@@ -19,17 +16,8 @@ qdrant = QdrantClient(
     timeout=60,
 )
 
-# ------------------------------------------------------
-# CONSTANTS
-# ------------------------------------------------------
-
 COLLECTION_NAME = "memory"
-EMBEDDING_SIZE = 1024 # ✅ MUST MATCH YOUR EMBEDDINGS
-
-# ------------------------------------------------------
-# ENSURE COLLECTION EXISTS (RUN ON STARTUP)
-# ------------------------------------------------------
-
+EMBEDDING_SIZE = 1024 
 
 from qdrant_client.models import PayloadSchemaType
 
@@ -46,11 +34,10 @@ def ensure_qdrant_collection():
             )
         )
 
-    # ✅ REQUIRED PAYLOAD INDEXES
     indexes = [
         ("user_id", PayloadSchemaType.INTEGER),
-        ("text", PayloadSchemaType.TEXT),       # 🔥 FIX
-        ("modality", PayloadSchemaType.KEYWORD) # optional but recommended
+        ("text", PayloadSchemaType.TEXT),      
+        ("modality", PayloadSchemaType.KEYWORD) 
     ]
 
     for field, schema in indexes:
@@ -61,13 +48,10 @@ def ensure_qdrant_collection():
                 field_schema=schema,
             )
         except Exception:
-            pass  # already exists
+            pass 
 
 
-# ------------------------------------------------------
 # INSERT VECTOR
-# ------------------------------------------------------
-
 def insert_vector(id: str, embedding: list, payload: dict):
     payload["timestamp"] = datetime.utcnow().isoformat()
 
@@ -82,10 +66,7 @@ def insert_vector(id: str, embedding: list, payload: dict):
         ],
     )
 
-# ------------------------------------------------------
 # SEARCH VECTORS
-# ------------------------------------------------------
-
 def search_vectors(vector: list, user_id: int, top_k: int = 5):
     query_filter = Filter(
         must=[
@@ -96,7 +77,7 @@ def search_vectors(vector: list, user_id: int, top_k: int = 5):
         ]
     )
 
-    for attempt in range(2):  # 🔁 retry once
+    for attempt in range(2):  
         try:
             result = qdrant.query_points(
                 collection_name=COLLECTION_NAME,
